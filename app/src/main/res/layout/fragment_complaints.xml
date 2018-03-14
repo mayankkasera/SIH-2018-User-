@@ -1,35 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="dynamicdrillers.sih2018user.MainActivity">
-
-
-        <include layout="@layout/main_toolbar" android:id="@+id/main_toolbar"/>
-
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="dynamicdrillers.sih2018user.ComplaintsFragment">
 
     <android.support.design.widget.TabLayout
-        app:tabTextAppearance="@style/MainTabLayoutTextAppearance"
-        android:id="@+id/main_tablayout"
+        android:id="@+id/complaint_tab"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="0dp"
         android:background="@color/colorPrimary"
-        app:tabIndicatorColor="@color/white"
+        app:tabIndicatorColor="@color/colorPrimary"
         app:tabSelectedTextColor="@color/white"
+        app:tabTextAppearance="@style/MyTabLayoutTextAppearance"
         app:tabTextColor="@color/gray">
 
     </android.support.design.widget.TabLayout>
 
     <android.support.v4.view.ViewPager
-        android:id="@+id/main_viewpager"
+        android:id="@+id/complaint_viewpager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:background="#EEEEEE"></android.support.v4.view.ViewPager>
 
-</LinearLayout>
+
+</FrameLayout>

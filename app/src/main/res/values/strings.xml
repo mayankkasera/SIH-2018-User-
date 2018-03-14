@@ -8,4 +8,9 @@
     <string name="enter_4_digit_otp_below">Enter 4 Digit Otp Below</string>
     <string name="resend_code">RESEND CODE</string>
     <string name="don_t_received_the_code">Don\'t Received The Code</string>
+    <string name="title_activity_maps">Map</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="register_your_compaint">Register your Compaint</string>
 </resources>
