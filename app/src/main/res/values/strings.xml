@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">SIH 2018 (USER)</string>
+    <string name="welcome">Welcome</string>
+    <string name="login_with_mobile_no">Login With Mobile No.</string>
+    <string name="proceed">PROCEED</string>
+    <string name="enter_your_mobile_no">Enter Your Mobile No</string>
+    <string name="waiting_to_automatically_detect_an_sms_n_sent_to_your_mobile_number">Waiting to automatically detect an SMS   sent to your mobile number</string>
+    <string name="enter_4_digit_otp_below">Enter 4 Digit Otp Below</string>
+    <string name="resend_code">RESEND CODE</string>
+    <string name="don_t_received_the_code">Don\'t Received The Code</string>
+    <string name="title_activity_maps">Map</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="register_your_compaint">Register your Compaint</string>
 </resources>
