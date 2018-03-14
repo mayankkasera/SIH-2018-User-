@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="dynamicdrillers.sih2018user.LoginActivity"
+    android:background="@android:color/white">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+
+       >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@string/welcome"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="30sp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:padding="10dp"
+                />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="@string/login_with_mobile_no"
+            android:textColor="#87869D"
+            android:textSize="30sp"
+            android:gravity="center"
+            android:padding="0dp"
+            />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:theme="@style/EditTextMobileNo"
+            android:padding="10dp"
+
+            >
+
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/mobileno_login_edt"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="@string/enter_your_mobile_no"
+                android:textColor="@color/colorPrimaryDark"
+                android:textStyle="bold"
+                android:inputType="phone"
+               />
+        </android.support.design.widget.TextInputLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            android:src="@drawable/ministrylogo"
+            android:padding="10dp"
+            />
+
+        <Button
+            android:id="@+id/proceed_login_btn"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.7"
+            android:text="@string/proceed"
+            android:layout_gravity="bottom"
+            android:gravity="center"
+            android:background="@color/colorPrimary"
+            android:textColor="@android:color/white"
+            />
+
+
+
+
+
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>
