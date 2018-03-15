@@ -32,7 +32,7 @@
                 android:layout_weight="1"
                 android:text="@string/waiting_to_automatically_detect_an_sms_n_sent_to_your_mobile_number"
                 android:textColor="@color/colorPrimaryDark"
-                android:textSize="20sp"
+                android:textSize="17sp"
                 android:gravity="center"
                 android:textStyle="bold"
 
@@ -43,9 +43,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:drawableRight="@drawable/ic_edit"
+
                 android:gravity="center"
-                android:padding="10dp"
                 android:text="+91092487474"
                 android:textColor="@color/mediumgray"
                 android:textSize="25sp"
@@ -63,56 +62,21 @@
 
                 />
 
-            <LinearLayout
+
+            <com.goodiebag.pinview.Pinview
+                android:id="@+id/pinview"
+                app:pinWidth="30dp"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                app:pinLength="6"
+                app:cursorVisible="true"
+                app:forceKeyboard="true"
+                app:hint="1"
+                app:inputType="number"
+                app:password="false"/>
 
-                <EditText
-                    android:id="@+id/optno1_otpverification_edt"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:inputType="phone"
-                    android:textSize="30sp"
-                    android:gravity="center"
-                    android:theme="@style/EditTextMobileNo"
-                    />
 
-                <EditText
-                    android:id="@+id/optno2_otpverification_edt"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:inputType="phone"
-                    android:textSize="30sp"
-                    android:gravity="center"
-                    android:theme="@style/EditTextMobileNo"
-                    />
-
-                <EditText
-                    android:id="@+id/optno3_otpverification_edt"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:inputType="phone"
-                    android:theme="@style/EditTextMobileNo"
-                    android:textSize="30sp"
-
-                    />
-
-                <EditText
-                    android:id="@+id/optno4_otpverification_edt"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:inputType="phone"
-                    android:textSize="30sp"
-                    android:theme="@style/EditTextMobileNo"
-                    android:gravity="center"
-                    />
-            </LinearLayout>
 
 
 
