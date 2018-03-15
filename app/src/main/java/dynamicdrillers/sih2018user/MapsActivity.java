@@ -55,21 +55,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         // Write a message to the database
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Authoritys");
+        GeoFire geoFire = new GeoFire(ref);
+        geoFire.setLocation("sdhfvajd",new GeoLocation(23.290864500235624,77.33559608459473));
 
+
+        geoFire.setLocation("sadfvsdvf",new GeoLocation(23.29843931630659,77.34126091003418));
 
         fun();
 
     }
-    int r =1;
+    int r = 1;
     boolean found = false;
     String id;
     void fun(){
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Authoritys");
 
-        GeoFire geoFire = new GeoFire(myRef);
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Authoritys");
+        GeoFire geoFire = new GeoFire(ref);
+        //geoFire.setLocation("you",new GeoLocation(23.290864500235624,77.33559608459473));
+
+
+
+
+
         GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(23.303950682125837,77.33980178833008),r);
         geoQuery.removeAllListeners();
+
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
@@ -90,11 +102,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onKeyMoved(String key, GeoLocation location) {
 
+                Toast.makeText(getApplicationContext(),location.latitude+""+location.longitude,Toast.LENGTH_LONG).show();
+
             }
 
             @Override
             public void onGeoQueryReady() {
-                  if(!found){
+                  if(!found&&r<10){
                       r++;
                       fun();
                       Toast.makeText(getApplicationContext(),r+"",Toast.LENGTH_LONG).show();
