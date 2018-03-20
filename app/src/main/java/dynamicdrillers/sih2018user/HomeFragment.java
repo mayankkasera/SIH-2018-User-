@@ -9,11 +9,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
+
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
+
+import static android.app.Activity.RESULT_OK;
 
 
 public class HomeFragment extends Fragment {
 
     Button button;
+    int PLACE_PICKER_REQUEST = 1;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -31,11 +40,16 @@ public class HomeFragment extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getContext(),MapsActivity.class));
+
+                startActivity(new Intent(getContext(),Main2Activity.class));
             }
         });
         return view;
     }
+
+
+
+
 
    
 }
