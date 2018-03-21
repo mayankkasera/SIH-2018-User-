@@ -36,6 +36,8 @@ dependencies {
     compile 'com.google.firebase:firebase-auth:11.8.0'
     compile 'com.android.support:design:26.1.0'
     compile 'com.firebase:geofire-android:2.1.1'
+    compile 'com.github.GoodieBag:Pinview:v1.3' // For Otp Pin Text Input
+    compile 'com.github.d-max:spots-dialog:0.7@aar' //For Loader
     compile 'com.google.android.gms:play-services-places:11.8.0'
     compile 'com.google.android.gms:play-services-maps:11.8.0'
     compile 'com.google.android.gms:play-services-nearby:11.8.0'
