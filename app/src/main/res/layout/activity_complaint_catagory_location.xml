@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="dynamicdrillers.sih2018user.ComplaintCatagoryLocation">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="9"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:weightSum="10"
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:hint="Choose  Complaint Catagory"
+            android:gravity="left"/>
+
+        <Spinner
+            android:id="@+id/complaintCatagory"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        </Spinner>
+
+
+
+        <EditText
+
+            android:id="@+id/description_compliant_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="6"
+            android:lines="20"
+            android:hint="Enter Your Complaint Description"
+            android:inputType="textImeMultiLine"
+            android:gravity="left"
+
+            />
+
+
+        <Button
+            android:id="@+id/chooseLocation_complaint_btn"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="Choose Your Location"/>
+
+        <TextView
+            android:id="@+id/gotLocation_complaint_textview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.5"
+            android:gravity="center"
+            android:hint="Your Choosed Address Will Be Here"/>
+
+
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/submitComplaint_complaint_LinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.9"
+        android:background="@color/colorPrimaryDark"
+        android:layout_gravity="bottom">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_done" />
+    </LinearLayout>
+
+
+    </LinearLayout>
+
+
+</RelativeLayout>
