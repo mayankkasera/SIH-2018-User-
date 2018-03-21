@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,11 +26,21 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import dmax.dialog.SpotsDialog;
 
 public class ComplaintCatagoryLocation extends AppCompatActivity {
 
@@ -45,11 +56,18 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
     Place Myplace;
     static String complainerState=" ";
     static String complainerDistrict = " ";
-    int r = 1;
+    int r = 2;
     boolean found = false;
-    String id;
+    String localAuthorityid;
     Intent intent;
-    Bundle args;
+    Bundle bundle;
+    ArrayList<Uri> imagesUri;
+    String ComplaintCatagoryS;
+    SpotsDialog spotsDialog ;
+    DatabaseReference mRoot;
+    FirebaseAuth mAuth;
+    StorageReference mStorage;
+    String state,district;
 
 
     @Override
@@ -59,13 +77,22 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
         // Intializing Objects
         init();
+        spotsDialog = new SpotsDialog(this);
 
         //getting Images from INtent
         intent = getIntent();
-        args = intent.getBundleExtra("BUNDLE");
-        ArrayList<Uri> imagesUri = (ArrayList<Uri>)args.getSerializable("ARRAYLIST");
+        bundle = intent.getBundleExtra("BUNDLE");
 
-        Toast.makeText(this, imagesUri.toString(), Toast.LENGTH_SHORT).show();
+        if(bundle!=null)
+        {
+          imagesUri = (ArrayList<Uri>) bundle.get("ARRAYLIST");
+            Toast.makeText(this, imagesUri.size(), Toast.LENGTH_SHORT).show();
+        }
+
+
+
+
+
 
 
 
@@ -75,7 +102,8 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
         ComplaintCatagory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(ComplaintCatagoryLocation.this, "You Clicked " + position, Toast.LENGTH_SHORT).show();
+                ComplaintCatagoryS = catagory[position];
+
             }
 
             @Override
@@ -92,6 +120,16 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
                 getLocation();
                 found = false;
+
+            }
+        });
+
+        // Submiting Complaint to database
+        SubmitComplaint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                sendComplaintToDatabase();
             }
         });
 
@@ -103,6 +141,77 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
     }
 
+    private void sendComplaintToDatabase() {
+
+        HashMap<String,String> complaint = new HashMap<>();
+        complaint.put("complainer_id",mAuth.getCurrentUser().getUid().toString());
+        complaint.put("complaint_request_time", String.valueOf(ServerValue.TIMESTAMP));
+        complaint.put("complaint_type",ComplaintCatagoryS);
+        complaint.put("complaint_description",ComplaintDescription.getText().toString());
+        complaint.put("complainer_region",district);
+        complaint.put("complainer_state",state);
+        complaint.put("complaint_goesto",localAuthorityid);
+        complaint.put("complaint_forwardto","default");
+        complaint.put("complaint_votes","0");
+        complaint.put("complaint_share","0");
+        complaint.put("complaint_resolved_time","null");
+        complaint.put("complaint_full_address",Myplace.getAddress().toString());
+        complaint.put("complaint_status","pending");
+        complaint.put("complaint_level","1");
+
+        final String Complaintid = mRoot.child("complaints").push().getKey();
+
+
+        mRoot.child("complaints").child(Complaintid).setValue(complaint).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+                if(task.isSuccessful())
+                {
+                    int noOfImages = 0;
+                    
+                    if(bundle!=null)
+                    {
+                        noOfImages = imagesUri.size();
+                    }
+                    for (int i = 0;i<noOfImages;i++ )
+                    {
+                        final int finalI = i;
+                        mStorage.child("complaints").child(Complaintid+"_request_"+(i+1)).putFile(imagesUri.get(i))
+                                .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                                        Toast.makeText(ComplaintCatagoryLocation.this, "image " + finalI + "uploaded", Toast.LENGTH_SHORT).show();
+
+                                    }
+                                });
+                    }
+                }
+            }
+        });
+
+        mRoot.child("complaints").child(Complaintid).setValue(complaint).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+                if(task.isSuccessful())
+                {
+                    Toast.makeText(ComplaintCatagoryLocation.this, "Your Complaint Is Registred..", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+    }
 
 
     public  void init()
@@ -114,6 +223,10 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
         ComplaintDescription = findViewById(R.id.description_compliant_edittext);
         SubmitComplaint = findViewById(R.id.submitComplaint_complaint_LinearLayout);
         gotLocationChoosed = findViewById(R.id.gotLocation_complaint_textview);
+        SubmitComplaint.setEnabled(true);
+        mAuth = FirebaseAuth.getInstance();
+        mRoot = FirebaseDatabase.getInstance().getReference();
+
 
     }
 
@@ -122,12 +235,12 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences(SharedprefenceName, Context.MODE_PRIVATE);
         sharedPreferences.getString("type",null);
 
-        String s2 = sharedPreferences.getString("state",null);
-        String s3 = sharedPreferences.getString("district",null);
+        state = sharedPreferences.getString("state",null);
+        district = sharedPreferences.getString("district",null);
 
         DatabaseReference ref = FirebaseDatabase.getInstance()
-                .getReference("region_places").child(s2.toLowerCase())
-                .child(s3.toLowerCase());
+                .getReference("region_places").child(state.toLowerCase())
+                .child(district.toLowerCase());
 
         GeoFire geoFire = new GeoFire(ref);
         //geoFire.setLocation("you",new GeoLocation(23.290864500235624,77.33559608459473));
@@ -142,13 +255,13 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
-                Toast.makeText(getApplicationContext(),"as,mnfc",Toast.LENGTH_LONG).show();
 
                 if(!found){
                     found = true;
-
-                    id = key;
-                    Toast.makeText(getApplicationContext(),id+" found "+r,Toast.LENGTH_LONG).show();
+                    localAuthorityid = key;
+                    Toast.makeText(getApplicationContext(),"Yes Services are available at your location",Toast.LENGTH_SHORT).show();
+                    SubmitComplaint.setEnabled(true);
+                    spotsDialog.dismiss();
 
                 }
             }
@@ -168,9 +281,13 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
             @Override
             public void onGeoQueryReady() {
                 if(!found&&r<100){
-                    r++;
+                    r  = r+2;
                     fun();
-                    Toast.makeText(getApplicationContext(),r+"",Toast.LENGTH_LONG).show();
+                    spotsDialog.show();
+                }
+                else
+                {
+                    Toast.makeText(ComplaintCatagoryLocation.this, "Services Are Not available at your place", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -198,6 +315,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
+                spotsDialog.show();
                 Myplace = PlacePicker.getPlace(data, this);
                Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
 
@@ -210,6 +328,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
                     if(address.length<=3){
                         Toast.makeText(ComplaintCatagoryLocation.this, "select exact location", Toast.LENGTH_SHORT).show();
+                        spotsDialog.dismiss();
                     }
                     else{
                         String  s[] = address[address.length-2].split(" ");

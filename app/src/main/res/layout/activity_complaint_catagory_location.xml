@@ -49,7 +49,7 @@
             android:layout_weight="6"
             android:lines="20"
             android:hint="Enter Your Complaint Description"
-            android:inputType="textImeMultiLine"
+            android:inputType="textMultiLine"
             android:gravity="left"
 
             />

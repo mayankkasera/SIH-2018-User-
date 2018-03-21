@@ -45,19 +45,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//
-//        //Checking User Is Logged In Or not;
-//        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
-//        if(mUser==null)
-//        {
-//            goToLoginPage();
-//        }
-//
-//
-//    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        //Checking User Is Logged In Or not;
+        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(mUser==null)
+        {
+            goToLoginPage();
+        }
+
+
+    }
 
     // Method For going on login page
     private void goToLoginPage() {

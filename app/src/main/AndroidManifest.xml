@@ -35,7 +35,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".LoginActivity" />
-        <activity android:name=".CustomGalleryActivity" />
         <activity android:name=".OtpVerificationActivity" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -62,7 +61,7 @@
             />
 
 
-        <activity android:name=".Main2Activity" />
+
         <activity android:name=".ComplaintCatagoryLocation"></activity>
     </application>
 
