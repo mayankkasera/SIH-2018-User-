@@ -75,7 +75,7 @@ public class CustomGalleryActivity extends AppCompatActivity {
 
             ArrayList<Uri> image_uris = intent.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS);
             Toast.makeText(this, image_uris.toString(), Toast.LENGTH_SHORT).show();
-            //do something
+            //do something//
         }
     }
 }
