@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.gun0912.tedpicker.ImagePickerActivity;
 
+import java.io.Serializable;
 import java.security.Permission;
 import java.util.ArrayList;
 
@@ -75,6 +76,16 @@ public class CustomGalleryActivity extends AppCompatActivity {
 
             ArrayList<Uri> image_uris = intent.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS);
             Toast.makeText(this, image_uris.toString(), Toast.LENGTH_SHORT).show();
+
+            Intent intent1 = new Intent(CustomGalleryActivity.this,ComplaintCatagoryLocation.class);
+
+
+            Bundle args = new Bundle();
+            args.putSerializable("ARRAYLIST",(Serializable)image_uris);
+            intent.putExtra("BUNDLE",args);
+
+
+            startActivity(intent1);
             //do something//
         }
     }

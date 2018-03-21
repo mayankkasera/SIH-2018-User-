@@ -3,6 +3,7 @@ package dynamicdrillers.sih2018user;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +29,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
+
 public class ComplaintCatagoryLocation extends AppCompatActivity {
 
     private static final String TAG = "ComplaintCatagoryLocati";
@@ -45,6 +48,8 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
     int r = 1;
     boolean found = false;
     String id;
+    Intent intent;
+    Bundle args;
 
 
     @Override
@@ -54,6 +59,15 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
         // Intializing Objects
         init();
+
+        //getting Images from INtent
+        intent = getIntent();
+        args = intent.getBundleExtra("BUNDLE");
+        ArrayList<Uri> imagesUri = (ArrayList<Uri>)args.getSerializable("ARRAYLIST");
+
+        Toast.makeText(this, imagesUri.toString(), Toast.LENGTH_SHORT).show();
+
+
 
         ArrayAdapter<String> ArrayAdaptorcatagory = new ArrayAdapter<String>(this,R.layout.support_simple_spinner_dropdown_item,catagory);
         ComplaintCatagory.setAdapter(ArrayAdaptorcatagory);
