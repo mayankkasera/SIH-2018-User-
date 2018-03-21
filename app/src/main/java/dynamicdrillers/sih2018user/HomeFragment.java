@@ -41,7 +41,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                startActivity(new Intent(getContext(),ComplaintCatagoryLocation.class));
+                startActivity(new Intent(getContext(),CustomGalleryActivity.class));
             }
         });
         return view;

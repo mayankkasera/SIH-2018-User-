@@ -6,6 +6,12 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+
+
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="EditTextMobileNo" parent="TextAppearance.AppCompat">
@@ -25,5 +31,6 @@
     <style name="MainTabLayoutTextAppearance" parent="Widget.Design.TabLayout">
         <item name="android:textSize">14sp</item>
     </style>
+
 
 </resources>
