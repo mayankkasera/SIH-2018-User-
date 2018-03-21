@@ -85,8 +85,8 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
         if(bundle!=null)
         {
-          imagesUri = (ArrayList<Uri>) bundle.get("ARRAYLIST");
-            Toast.makeText(this, imagesUri.size(), Toast.LENGTH_SHORT).show();
+          imagesUri = (ArrayList<Uri>) bundle.getSerializable("ARRAYLIST");
+            Toast.makeText(this, imagesUri.size()+"", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -169,15 +169,14 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
                 if(task.isSuccessful())
                 {
                     int noOfImages = 0;
-                    
-                    if(bundle!=null)
-                    {
-                        noOfImages = imagesUri.size();
-                    }
+                    noOfImages = getIntent().getIntExtra("noofimages",0);
+                    Toast.makeText(ComplaintCatagoryLocation.this,noOfImages+" " , Toast.LENGTH_SHORT).show();
+
+
                     for (int i = 0;i<noOfImages;i++ )
                     {
                         final int finalI = i;
-                        mStorage.child("complaints").child(Complaintid+"_request_"+(i+1)).putFile(imagesUri.get(i))
+                        mStorage.child("complaints").child(Complaintid+"_request_"+(i+1)+".jpg").putFile(imagesUri.get(i))
                                 .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
@@ -226,6 +225,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
         SubmitComplaint.setEnabled(true);
         mAuth = FirebaseAuth.getInstance();
         mRoot = FirebaseDatabase.getInstance().getReference();
+        mStorage = FirebaseStorage.getInstance().getReference();
 
 
     }

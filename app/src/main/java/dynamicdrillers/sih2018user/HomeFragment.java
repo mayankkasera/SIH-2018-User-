@@ -103,15 +103,15 @@ public class HomeFragment extends Fragment {
         if (requestCode == INTENT_REQUEST_GET_IMAGES && resuleCode == Activity.RESULT_OK ) {
 
             ArrayList<Uri> image_uris = intent.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS);
-            Toast.makeText(getContext(), image_uris.toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), image_uris.size()+" ", Toast.LENGTH_SHORT).show();
 
             Intent intent1 = new Intent(getContext(),ComplaintCatagoryLocation.class);
 
 
             Bundle args = new Bundle();
-            args.putSerializable("ARRAYLIST",image_uris);
-            intent.putExtra("BUNDLE",args);
-
+            args.putSerializable("ARRAYLIST",(Serializable)image_uris);
+            intent1.putExtra("BUNDLE",args);
+            intent1.putExtra("noofimages",image_uris.size());
 
             startActivity(intent1);
             //do something//
