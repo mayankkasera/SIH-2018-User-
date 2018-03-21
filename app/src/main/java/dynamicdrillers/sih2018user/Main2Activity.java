@@ -1,6 +1,8 @@
 package dynamicdrillers.sih2018user;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -26,6 +28,8 @@ public class Main2Activity extends AppCompatActivity {
     int PLACE_PICKER_REQUEST = 1;
     Double lat,lon;
     Place Myplace;
+    static String complainerState=" ";
+    static String complainerDistrict = " ";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,13 +47,22 @@ public class Main2Activity extends AppCompatActivity {
 
     }
 
+
     int r = 1;
     boolean found = false;
     String id;
     void fun(){
+        String SharedprefenceName = "USER_DATA";
+        SharedPreferences sharedPreferences = getSharedPreferences(SharedprefenceName,Context.MODE_PRIVATE);
+        sharedPreferences.getString("type",null);
 
+        String s2 = sharedPreferences.getString("state",null);
+        String s3 = sharedPreferences.getString("district",null);
 
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("region_places");
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                .getReference("region_places").child(s2.toLowerCase())
+                .child(s3.toLowerCase());
+
         GeoFire geoFire = new GeoFire(ref);
         //geoFire.setLocation("you",new GeoLocation(23.290864500235624,77.33559608459473));
 
@@ -67,8 +80,10 @@ public class Main2Activity extends AppCompatActivity {
 
                 if(!found){
                     found = true;
+
                     id = key;
                     Toast.makeText(getApplicationContext(),id+" found "+r,Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(Main2Activity.this,MainActivity.class));
                 }
             }
 
@@ -101,6 +116,7 @@ public class Main2Activity extends AppCompatActivity {
 
     }
 
+
     private void getLocation() {
         PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
 
@@ -120,30 +136,70 @@ public class Main2Activity extends AppCompatActivity {
                 Myplace = PlacePicker.getPlace(data, this);
                 Log.d(TAG, "onActivityResult: "+Myplace.getAddress());
                 Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
+
+
                 if(Myplace.getAddress()!=null){
                     String address[] = Myplace.getAddress().toString().split(",");
 
                     TextView textView = findViewById(R.id.textView);
                     for(int i = 0 ; i<address.length;i++){
-                        String []s;
-                        if(i==address.length-2){
-                            s = address[i].split(" ");
-                            textView.setText(textView.getText()+s[1]+"\n");
+                        textView.setText(textView.getText()+address[i]+"\n");
+                    }
+
+                    if(address.length<=3){
+                        Toast.makeText(Main2Activity.this, "select exact location", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        String  s[] = address[address.length-2].split(" ");
+                        textView.setText(textView.getText()+""+s.length+"\n");
+
+                        if(s.length>3){
+                            for(int j=0;j<s.length-1;j++)
+                            {
+
+                                complainerState = complainerState+s[j];
+                                 complainerState = complainerState.trim().toLowerCase();
+
+
+                            }
                         }
                         else{
-                            textView.setText(textView.getText()+address[i]+"\n");
+
+                            for(int j=0;j<s.length;j++)
+                            {
+
+                                complainerState = complainerState+s[j];
+                                complainerState = complainerState.trim().toLowerCase();
+
+                            }
+
                         }
+
+
+
+                        complainerDistrict = complainerDistrict+address[address.length-3];
+                        complainerDistrict = complainerDistrict.trim().toLowerCase();
+                         String SharedprefenceName = "USER_DATA";
+
+                        SharedPreferences sharedPreferences = getSharedPreferences(SharedprefenceName, Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("state",complainerState);
+                        editor.putString("district",complainerDistrict);
+                        editor.commit();
+                        editor.apply();
+
+                        textView.setText("mb"+complainerDistrict+complainerState+"mb");
+                        fun();
+                        complainerState= "";
+                        complainerDistrict = "";
 
 
                     }
 
+
+
                 }
 
-
-
-
-
-                fun();
             }
         }
     }
