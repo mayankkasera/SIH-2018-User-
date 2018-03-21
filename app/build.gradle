@@ -41,7 +41,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-places:11.8.0'
     compile 'com.google.android.gms:play-services-maps:11.8.0'
     compile 'com.google.android.gms:play-services-nearby:11.8.0'
-
+    compile 'com.github.ParkSangGwon:TedPicker:v1.0.10'
 
 }
 
