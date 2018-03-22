@@ -118,7 +118,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                getLocation();
+              //  getLocation();
                 found = false;
 
             }
@@ -370,7 +370,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
                         editor.apply();
 
 
-                        fun();
+                       // fun();
                         complainerState= "";
                         complainerDistrict = "";
 

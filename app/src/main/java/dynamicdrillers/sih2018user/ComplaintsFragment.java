@@ -32,7 +32,7 @@ public class ComplaintsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_complaints, container, false);
 
         viewPager = view.findViewById(R.id.complaint_viewpager);
-        viewPager.setAdapter(new ComplaintsTabAdapter(getFragmentManager()));
+        viewPager.setAdapter(new ComplaintsTabAdapter(getActivity().getSupportFragmentManager()));
 
         tabLayout = view.findViewById(R.id.complaint_tab);
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);

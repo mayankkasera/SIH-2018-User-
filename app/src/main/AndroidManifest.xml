@@ -11,14 +11,13 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-feature android:name="android.hardware.camera" />
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
-
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="android.permission.CAMERA" />
-
 
     <application
         android:allowBackup="true"
@@ -47,24 +46,19 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCFyxLQgpC8wtYJYJ3WD8LHoxIPkMQQuzk" />
-        <meta-data android:name="com.google.android.version"
-            android:value="119110000"/>
+        <meta-data
+            android:name="com.google.android.version"
+            android:value="119110000" />
 
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity android:name=".Main2Activity" />
-
-
-        <activity android:name="com.gun0912.tedpicker.ImagePickerActivity"
-            android:screenOrientation="portrait"
-            />
-
-
-
-        <activity android:name=".ComplaintCatagoryLocation"></activity>
+        <activity
+            android:name="com.gun0912.tedpicker.ImagePickerActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".ComplaintCatagoryLocation" />
+        <activity android:name=".ComplaintActivity"></activity>
     </application>
-
-
 
 </manifest>
