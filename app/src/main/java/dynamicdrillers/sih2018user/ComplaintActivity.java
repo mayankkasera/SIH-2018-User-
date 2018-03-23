@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -35,8 +36,9 @@ public class ComplaintActivity extends AppCompatActivity {
     private String Name,Dis,Add,Vote,Share;
     private long time;
     private TextView NameTxt,TimeTxt,DisTxt,AddTxt,VoteTxt,ShareTxt;
-    private String UserId="123";
-
+    private String UserId="";
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private ImageView voteimg;
 
 
 
@@ -45,6 +47,7 @@ public class ComplaintActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_complaint);
+        UserId = mAuth.getCurrentUser().getUid().toString();
 
         recyclerView = findViewById(R.id.complaint_des_recyclerView);
         recyclerView.setHasFixedSize(true);
@@ -64,6 +67,7 @@ public class ComplaintActivity extends AppCompatActivity {
         AddTxt = findViewById(R.id.add_com_txt);
         VoteTxt = findViewById(R.id.vote_com_txt);
         ShareTxt = findViewById(R.id.share_com_txt);
+        voteimg  =findViewById(R.id.vote_img);
 
         NameTxt.setText(Name);
         TimeTxt.setText(Time.getTimeAgo(time,this));
@@ -89,6 +93,30 @@ public class ComplaintActivity extends AppCompatActivity {
             }
         });
 
+
+        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference()
+                .child("vote").child(key);
+        final DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
+                .child("vote").child(key);
+
+        referenceVote.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.hasChild(UserId)){
+                    if(dataSnapshot.child(UserId).getValue().equals("true")){
+                        voteimg.setImageResource(R.drawable.unlike);
+                    }
+                    else {
+                        voteimg.setImageResource(R.drawable.like);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
         VoteTxt.setText(Vote+ " Votes");
 
         final ImageView VoteImg = findViewById(R.id.vote_img);
