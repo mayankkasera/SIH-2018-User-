@@ -9,6 +9,8 @@ import android.support.v4.app.FragmentPagerAdapter;
  */
 
 public class ComplaintsTabAdapter extends FragmentPagerAdapter {
+
+
     public ComplaintsTabAdapter(FragmentManager fm) {
         super(fm);
     }
@@ -40,7 +42,7 @@ public class ComplaintsTabAdapter extends FragmentPagerAdapter {
         {
 
             case 0:
-                return "Your Complaints";
+                return "Your's Complaints";
             case 1:
                 return "Near By Complaints";
 
