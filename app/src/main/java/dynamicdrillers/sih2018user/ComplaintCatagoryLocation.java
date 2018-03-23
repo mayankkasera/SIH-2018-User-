@@ -155,7 +155,6 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
         HashMap<String,String> complaint = new HashMap<>();
         complaint.put("complainer_id",mAuth.getCurrentUser().getUid().toString());
-
         complaint.put("complaint_type",ComplaintCatagoryS);
         complaint.put("complaint_description",ComplaintDescription.getText().toString());
         complaint.put("complainer_region",district);
@@ -182,9 +181,9 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
                 if(task.isSuccessful())
                 {
+                    mRoot.child("complaints").child(Complaintid).child("complaint_request_time").setValue(ServerValue.TIMESTAMP);
 
-
-                    for (int i = 0;i<imagesUri.size();i++ )
+                     for (int i = 0;i<imagesUri.size();i++ )
                     {
                         final int finalI = i;
                         Uri img_uri = Uri.fromFile(new File(String.valueOf(imagesUri.get(i))));
@@ -201,10 +200,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
 
-                                               if(task.isSuccessful())
-                                               {
-                                                   Toast.makeText(ComplaintCatagoryLocation.this, "image link added" , Toast.LENGTH_SHORT).show();
-                                               }
+
                                             }
                                         });
 
@@ -212,27 +208,16 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
                                     }
                                 });
                     }
-                }
-            }
-        });
-
-        mRoot.child("complaints").child(Complaintid).setValue(complaint).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-
-                if(task.isSuccessful())
-                {
-
-                    mRoot.child("complaints").child(Complaintid).child("complaint_request_time").setValue(ServerValue.TIMESTAMP);
                     spotsDialog.dismiss();
                     Intent i = new Intent(ComplaintCatagoryLocation.this,ComplaintSuccessFullyActivity.class);
                     i.putExtra("complaintid",Complaintid);
                     startActivity(i);
                     finish();
-
                 }
             }
         });
+
+
 
 
 

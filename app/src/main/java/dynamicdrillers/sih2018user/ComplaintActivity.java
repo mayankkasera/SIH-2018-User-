@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,8 @@ import com.squareup.picasso.Picasso;
 import java.security.Key;
 import java.util.HashMap;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class ComplaintActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
@@ -37,8 +40,11 @@ public class ComplaintActivity extends AppCompatActivity {
     private long time;
     private TextView NameTxt,TimeTxt,DisTxt,AddTxt,VoteTxt,ShareTxt;
     private String UserId="";
+    private  String ComplainerUserId ;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private ImageView voteimg;
+    private String TAG="bc";
+    private CircleImageView profileImage;
 
 
 
@@ -58,6 +64,7 @@ public class ComplaintActivity extends AppCompatActivity {
         time = getIntent().getLongExtra("time",0);
         Dis = getIntent().getStringExtra("description");
         Add = getIntent().getStringExtra("add");
+        ComplainerUserId = getIntent().getStringExtra("userid");
 
         Toast.makeText(this, ""+key, Toast.LENGTH_SHORT).show();
 
@@ -68,6 +75,8 @@ public class ComplaintActivity extends AppCompatActivity {
         VoteTxt = findViewById(R.id.vote_com_txt);
         ShareTxt = findViewById(R.id.share_com_txt);
         voteimg  =findViewById(R.id.vote_img);
+        profileImage = findViewById(R.id.profile_image);
+
 
         NameTxt.setText(Name);
         TimeTxt.setText(Time.getTimeAgo(time,this));
@@ -93,21 +102,39 @@ public class ComplaintActivity extends AppCompatActivity {
             }
         });
 
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(ComplainerUserId);
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
-        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference()
-                .child("vote").child(key);
+               Picasso.with(getApplicationContext()).load(dataSnapshot.child("image").getValue().toString()).into(profileImage);
+                NameTxt.setText(dataSnapshot.child("name").getValue().toString());
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
         final DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
                 .child("vote").child(key);
 
-        referenceVote.addValueEventListener(new ValueEventListener() {
+        reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.hasChild(UserId)){
                     if(dataSnapshot.child(UserId).getValue().equals("true")){
-                        voteimg.setImageResource(R.drawable.unlike);
+                        voteimg.setImageResource(R.drawable.like);
+                        Toast.makeText(ComplaintActivity.this,"true", Toast.LENGTH_SHORT).show();
+
                     }
                     else {
-                        voteimg.setImageResource(R.drawable.like);
+                        voteimg.setImageResource(R.drawable.unlike);
+                        Toast.makeText(ComplaintActivity.this, "false", Toast.LENGTH_SHORT).show();
+
                     }
                 }
             }
@@ -117,7 +144,12 @@ public class ComplaintActivity extends AppCompatActivity {
 
             }
         });
-        VoteTxt.setText(Vote+ " Votes");
+
+
+
+
+
+              VoteTxt.setText(Vote+ " Votes");
 
         final ImageView VoteImg = findViewById(R.id.vote_img);
 
@@ -150,22 +182,24 @@ public class ComplaintActivity extends AppCompatActivity {
                                         referenceVote.child(UserId).setValue("false");
                                         DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
                                                 .child("complaints").child(key);
-                                        int i = Integer.parseInt(Vote);
+
+
+                                        int i = Integer.parseInt(String.valueOf(Vote));
                                         i=i-1;
                                         reference.child("complaint_votes").setValue(i+"");
                                         Toast.makeText(ComplaintActivity.this, "vote -", Toast.LENGTH_SHORT).show();
-                                        VoteImg.setImageResource(R.drawable.unlike);
+                                        //VoteImg.setImageResource(R.drawable.unlike);
                                     }
                                     else{
                                         referenceVote.child(UserId).setValue("true");
                                         DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
                                                 .child("complaints").child(key);
-                                        int i = Integer.parseInt(Vote);
+                                        int i = Integer.parseInt(String.valueOf(Vote));
                                         i = i+1;
                                         reference.child("complaint_votes").setValue(i+"");
                                         Toast.makeText(ComplaintActivity.this, "vote +", Toast.LENGTH_SHORT).show();
 
-                                        VoteImg.setImageResource(R.drawable.like);
+                                        //VoteImg.setImageResource(R.drawable.like);
                                     }
                                 }
 
@@ -176,15 +210,13 @@ public class ComplaintActivity extends AppCompatActivity {
                             });
                         }
                         else {
-                            HashMap<String,String> Vote = new HashMap<>();
-                            Vote.put("complainer_id",key);
 
                             DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
                                     .child("complaints").child(key);
                             int i = Integer.parseInt(String.valueOf(Vote));
                             reference.child("complaint_votes").setValue(i+1+"");
 
-                            VoteImg.setImageResource(R.drawable.unlike);
+                           // VoteImg.setImageResource(R.drawable.unlike);
                             referenceVote.child(UserId).setValue("true");
                             Toast.makeText(ComplaintActivity.this, "vote"+key.toString(), Toast.LENGTH_SHORT).show();
                         }

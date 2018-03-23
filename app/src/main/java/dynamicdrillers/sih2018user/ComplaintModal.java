@@ -12,6 +12,26 @@ public class ComplaintModal {
     private String complaint_share;
     private String complaint_status;
     private String complaint_description;
+    private String complainer_id;
+
+    public ComplaintModal(Long complaint_request_time, String complaint_full_address, String complaint_votes, String complaint_share, String complaint_status, String complaint_description, String complainer_id) {
+        this.complaint_request_time = complaint_request_time;
+        this.complaint_full_address = complaint_full_address;
+        this.complaint_votes = complaint_votes;
+        this.complaint_share = complaint_share;
+        this.complaint_status = complaint_status;
+        this.complaint_description = complaint_description;
+        this.complainer_id = complainer_id;
+    }
+
+    public String getComplainer_id() {
+
+        return complainer_id;
+    }
+
+    public void setComplainer_id(String complainer_id) {
+        this.complainer_id = complainer_id;
+    }
 
     public ComplaintModal() {
     }
@@ -65,13 +85,7 @@ public class ComplaintModal {
         this.complaint_description = complaint_description;
     }
 
-    public ComplaintModal(Long complaint_request_time, String complaint_dis, String complaint_full_address, String complaint_votes, String complaint_share, String complaint_status) {
-        this.complaint_request_time = complaint_request_time;
-        this.complaint_full_address = complaint_full_address;
-        this.complaint_votes = complaint_votes;
-        this.complaint_share = complaint_share;
-        this.complaint_status = complaint_status;
-    }
+
 
 
 }

@@ -63,6 +63,7 @@ public class LoginActivity extends AppCompatActivity {
                 // Doing Mobile Number Validation
                 if(validateMobileNo(mobileNo.getEditText().getText().toString()))
                 {
+                    spotsDialog.show();
                     sendVerificationCode(mobileNo.getEditText().getText().toString());
 
                 }

@@ -44,7 +44,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
     LinearLayout done;
     Pinview pinview;
     String fullotp;
-    TextView resendCode;
+    TextView resendCode,MobilNoToverify;
     String verificationId,mobileNo;
     SpotsDialog spotsDialog ;
     PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallback;
@@ -55,9 +55,14 @@ public class OtpVerificationActivity extends AppCompatActivity {
         spotsDialog = new SpotsDialog(this);
         verificationId = getIntent().getStringExtra("verificationId");
         mobileNo = getIntent().getStringExtra("mobileno");
+
         done = (LinearLayout)findViewById(R.id.doneVerification_otpverification_linearlayout);
         pinview = (Pinview)findViewById(R.id.pinview);
         resendCode = (TextView)findViewById(R.id.resendCode_otpVerification_text);
+        MobilNoToverify = findViewById(R.id.editMobileNo_otpverification_txt);
+
+        MobilNoToverify.setText(mobileNo);
+
 
 
 
@@ -170,19 +175,6 @@ public class OtpVerificationActivity extends AppCompatActivity {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if(dataSnapshot.child(task.getResult().getUser().getUid().toString()).exists())
                             {
-
-
-
-                                // Sending to mainActivity
-                                SharedPreferences sharedPreferences = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
-
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                editor.putString("name",dataSnapshot.child(task.getResult().getUser().getUid().toLowerCase()).child("name").getValue().toString());
-                                editor.putString("mobile",task.getResult().getUser().getUid());
-                                editor.putString("image",dataSnapshot.child(task.getResult().getUser().getUid().toLowerCase()).child("image").getValue().toString()) ;
-
-                                editor.commit();
-                                editor.apply();
 
                                 startActivity(new Intent(OtpVerificationActivity.this,MainActivity.class));
                                 finish();
