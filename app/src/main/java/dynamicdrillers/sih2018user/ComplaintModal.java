@@ -6,48 +6,27 @@ package dynamicdrillers.sih2018user;
 
 public class ComplaintModal {
 
-    private String complaint_request_time;
-    private String complaint_dis;
+    private Long complaint_request_time;
     private String complaint_full_address;
     private String complaint_votes;
     private String complaint_share;
     private String complaint_status;
+    private String complaint_description;
 
     public ComplaintModal() {
     }
+
 
     public String getComplaint_status() {
         return complaint_status;
     }
 
-    public void setComplaint_status(String complaint_status) {
-        this.complaint_status = complaint_status;
-    }
-
-    public String getComplaint_request_time() {
+    public Long getComplaint_request_time() {
         return complaint_request_time;
     }
 
-    public ComplaintModal(String complaint_request_time, String complaint_dis, String complaint_full_address, String complaint_votes, String complaint_share, String complaint_status) {
+    public void setComplaint_request_time(Long complaint_request_time) {
         this.complaint_request_time = complaint_request_time;
-        this.complaint_dis = complaint_dis;
-        this.complaint_full_address = complaint_full_address;
-        this.complaint_votes = complaint_votes;
-        this.complaint_share = complaint_share;
-        this.complaint_status = complaint_status;
-    }
-
-
-    public void setComplaint_request_time(String complaint_request_time) {
-        this.complaint_request_time = complaint_request_time;
-    }
-
-    public String getComplaint_dis() {
-        return complaint_dis;
-    }
-
-    public void setComplaint_dis(String complaint_dis) {
-        this.complaint_dis = complaint_dis;
     }
 
     public String getComplaint_full_address() {
@@ -73,4 +52,26 @@ public class ComplaintModal {
     public void setComplaint_share(String complaint_share) {
         this.complaint_share = complaint_share;
     }
+
+    public void setComplaint_status(String complaint_status) {
+        this.complaint_status = complaint_status;
+    }
+
+    public String getComplaint_description() {
+        return complaint_description;
+    }
+
+    public void setComplaint_description(String complaint_description) {
+        this.complaint_description = complaint_description;
+    }
+
+    public ComplaintModal(Long complaint_request_time, String complaint_dis, String complaint_full_address, String complaint_votes, String complaint_share, String complaint_status) {
+        this.complaint_request_time = complaint_request_time;
+        this.complaint_full_address = complaint_full_address;
+        this.complaint_votes = complaint_votes;
+        this.complaint_share = complaint_share;
+        this.complaint_status = complaint_status;
+    }
+
+
 }
