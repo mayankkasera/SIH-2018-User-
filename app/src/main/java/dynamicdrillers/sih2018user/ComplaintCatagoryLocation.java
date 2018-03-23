@@ -28,6 +28,7 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,6 +38,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -68,6 +70,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
     FirebaseAuth mAuth;
     StorageReference mStorage;
     String state,district;
+    int Got_Authority_Flag =0;
 
 
     @Override
@@ -78,22 +81,9 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
         // Intializing Objects
         init();
         spotsDialog = new SpotsDialog(this);
+        spotsDialog.setTitle("Searching nearest authority..");
 
-        //getting Images from INtent
-        intent = getIntent();
-        bundle = intent.getBundleExtra("BUNDLE");
-
-        if(bundle!=null)
-        {
-          imagesUri = (ArrayList<Uri>) bundle.getSerializable("ARRAYLIST");
-            Toast.makeText(this, imagesUri.size()+"", Toast.LENGTH_SHORT).show();
-        }
-
-
-
-
-
-
+        imagesUri = getIntent().getParcelableArrayListExtra("imagesuri");
 
 
         ArrayAdapter<String> ArrayAdaptorcatagory = new ArrayAdapter<String>(this,R.layout.support_simple_spinner_dropdown_item,catagory);
@@ -118,7 +108,8 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-              //  getLocation();
+
+                getLocation();
                 found = false;
 
             }
@@ -129,7 +120,24 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                sendComplaintToDatabase();
+
+                if(!gotLocationChoosed.getText().equals("") && Got_Authority_Flag==1)
+                {
+
+                    spotsDialog.show();
+                    sendComplaintToDatabase();
+
+                }
+                else if( Got_Authority_Flag==2)
+                {
+                    Toast.makeText(ComplaintCatagoryLocation.this, "Service is Not Avaiable in your region", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Toast.makeText(ComplaintCatagoryLocation.this, "Please Choose Your Location...", Toast.LENGTH_SHORT).show();
+                }
+
+
             }
         });
 
@@ -143,9 +151,11 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
     private void sendComplaintToDatabase() {
 
+
+
         HashMap<String,String> complaint = new HashMap<>();
         complaint.put("complainer_id",mAuth.getCurrentUser().getUid().toString());
-        complaint.put("complaint_request_time", String.valueOf(ServerValue.TIMESTAMP));
+
         complaint.put("complaint_type",ComplaintCatagoryS);
         complaint.put("complaint_description",ComplaintDescription.getText().toString());
         complaint.put("complainer_region",district);
@@ -158,30 +168,46 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
         complaint.put("complaint_full_address",Myplace.getAddress().toString());
         complaint.put("complaint_status","pending");
         complaint.put("complaint_level","1");
+        complaint.put("complaint_request_No_of_images", String.valueOf(imagesUri.size()));
+        complaint.put("complaint_response_No_of_images","0");
+        complaint.put("complaint_location_latitude", String.valueOf(Myplace.getLatLng().latitude));
+        complaint.put("complaint_location_longitude", String.valueOf(Myplace.getLatLng().longitude));
 
-        final String Complaintid = mRoot.child("complaints").push().getKey();
+        final String Complaintid = mRoot.child("complaints").push().getKey().toString();
 
 
         mRoot.child("complaints").child(Complaintid).setValue(complaint).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
 
                 if(task.isSuccessful())
                 {
-                    int noOfImages = 0;
-                    noOfImages = getIntent().getIntExtra("noofimages",0);
-                    Toast.makeText(ComplaintCatagoryLocation.this,noOfImages+" " , Toast.LENGTH_SHORT).show();
 
 
-                    for (int i = 0;i<noOfImages;i++ )
+                    for (int i = 0;i<imagesUri.size();i++ )
                     {
                         final int finalI = i;
-                        mStorage.child("complaints").child(Complaintid+"_request_"+(i+1)+".jpg").putFile(imagesUri.get(i))
+                        Uri img_uri = Uri.fromFile(new File(String.valueOf(imagesUri.get(i))));
+                        mStorage.child("complaints").child(Complaintid+"_request_"+(i+1)+".jpg").putFile(img_uri)
                                 .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
-                                        Toast.makeText(ComplaintCatagoryLocation.this, "image " + finalI + "uploaded", Toast.LENGTH_SHORT).show();
+                                        HashMap<String,String> data = new HashMap<>();
+                                        data.put("image",task.getResult().getDownloadUrl().toString());
+                                        data.put("type","request");
+
+                                        mRoot.child("complaints").child(Complaintid).child("images").push().setValue(data).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+
+                                               if(task.isSuccessful())
+                                               {
+                                                   Toast.makeText(ComplaintCatagoryLocation.this, "image link added" , Toast.LENGTH_SHORT).show();
+                                               }
+                                            }
+                                        });
+
 
                                     }
                                 });
@@ -196,7 +222,14 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
                 if(task.isSuccessful())
                 {
-                    Toast.makeText(ComplaintCatagoryLocation.this, "Your Complaint Is Registred..", Toast.LENGTH_SHORT).show();
+
+                    mRoot.child("complaints").child(Complaintid).child("complaint_request_time").setValue(ServerValue.TIMESTAMP);
+                    spotsDialog.dismiss();
+                    Intent i = new Intent(ComplaintCatagoryLocation.this,ComplaintSuccessFullyActivity.class);
+                    i.putExtra("complaintid",Complaintid);
+                    startActivity(i);
+                    finish();
+
                 }
             }
         });
@@ -222,7 +255,6 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
         ComplaintDescription = findViewById(R.id.description_compliant_edittext);
         SubmitComplaint = findViewById(R.id.submitComplaint_complaint_LinearLayout);
         gotLocationChoosed = findViewById(R.id.gotLocation_complaint_textview);
-        SubmitComplaint.setEnabled(true);
         mAuth = FirebaseAuth.getInstance();
         mRoot = FirebaseDatabase.getInstance().getReference();
         mStorage = FirebaseStorage.getInstance().getReference();
@@ -260,6 +292,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
                     found = true;
                     localAuthorityid = key;
                     Toast.makeText(getApplicationContext(),"Yes Services are available at your location",Toast.LENGTH_SHORT).show();
+                    Got_Authority_Flag = 1;
                     SubmitComplaint.setEnabled(true);
                     spotsDialog.dismiss();
 
@@ -274,20 +307,22 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
             @Override
             public void onKeyMoved(String key, GeoLocation location) {
 
-                Toast.makeText(getApplicationContext(),location.latitude+""+location.longitude,Toast.LENGTH_LONG).show();
+
 
             }
 
             @Override
             public void onGeoQueryReady() {
                 if(!found&&r<100){
-                    r  = r+2;
+                    r  = r+5;
                     fun();
                     spotsDialog.show();
                 }
-                else
+                if(r>100)
                 {
+                    Got_Authority_Flag = 2;
                     Toast.makeText(ComplaintCatagoryLocation.this, "Services Are Not available at your place", Toast.LENGTH_SHORT).show();
+                    spotsDialog.dismiss();
                 }
             }
 
@@ -370,7 +405,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
                         editor.apply();
 
 
-                       // fun();
+                        fun();
                         complainerState= "";
                         complainerDistrict = "";
 

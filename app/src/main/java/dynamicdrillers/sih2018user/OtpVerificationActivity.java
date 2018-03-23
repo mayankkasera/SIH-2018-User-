@@ -1,6 +1,8 @@
 package dynamicdrillers.sih2018user;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
@@ -168,7 +170,20 @@ public class OtpVerificationActivity extends AppCompatActivity {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if(dataSnapshot.child(task.getResult().getUser().getUid().toString()).exists())
                             {
+
+
+
                                 // Sending to mainActivity
+                                SharedPreferences sharedPreferences = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("name",dataSnapshot.child(task.getResult().getUser().getUid().toLowerCase()).child("name").getValue().toString());
+                                editor.putString("mobile",task.getResult().getUser().getUid());
+                                editor.putString("image",dataSnapshot.child(task.getResult().getUser().getUid().toLowerCase()).child("image").getValue().toString()) ;
+
+                                editor.commit();
+                                editor.apply();
+
                                 startActivity(new Intent(OtpVerificationActivity.this,MainActivity.class));
                                 finish();
                             }

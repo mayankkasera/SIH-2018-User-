@@ -22,6 +22,7 @@
         <item name="colorAccent">@color/colorPrimaryDark</item>
         <item name="colorControlNormal">@color/colorPrimaryDark</item>
         <item name="colorControlActivated">@color/colorPrimary</item>
+
     </style>
 
     <style name="MyTabLayoutTextAppearance" parent="Widget.Design.TabLayout">
@@ -30,6 +31,22 @@
 
     <style name="MainTabLayoutTextAppearance" parent="Widget.Design.TabLayout">
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="mythem" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/Dialog</item>
+        <item name="colorPrimaryDark">@color/Dialog</item>
+        <item name="colorAccent">@color/Dialog</item>
+        <item name="textColorError">@color/Dialog</item>
+
+        <!-- Hint color and label color in FALSE state -->
+        <item name="android:textColorHint">@color/Dialog</item>
+        <item name="android:textSize">20sp</item>
+        <!-- Label color in TRUE state and bar color FALSE and TRUE State -->
+
+        <item name="colorControlNormal">@color/Dialog</item>
+        <item name="colorControlActivated">@color/Dialog</item>
+
     </style>
 
 

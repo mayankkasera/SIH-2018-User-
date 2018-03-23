@@ -58,9 +58,9 @@
             android:name="com.gun0912.tedpicker.ImagePickerActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".ComplaintCatagoryLocation" />
-        <activity android:name=".ComplaintActivity"></activity>
-
-        <activity android:name=".ProfileActivity"></activity>
+        <activity android:name=".ComplaintActivity" />
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".ComplaintSuccessFullyActivity"></activity>
     </application>
 
 </manifest>

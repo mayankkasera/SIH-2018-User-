@@ -21,6 +21,7 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.gun0912.tedpicker.Config;
 import com.gun0912.tedpicker.ImagePickerActivity;
 
 import java.io.Serializable;
@@ -91,6 +92,10 @@ public class HomeFragment extends Fragment {
 
     private void getImages() {
 
+        Config config = new Config();
+        config.setSelectionMin(1);
+        config.setSelectionLimit(4);
+        ImagePickerActivity.setConfig(config);
         Intent intent  = new Intent(getContext(), ImagePickerActivity.class);
         startActivityForResult(intent,INTENT_REQUEST_GET_IMAGES);
 
@@ -102,16 +107,12 @@ public class HomeFragment extends Fragment {
 
         if (requestCode == INTENT_REQUEST_GET_IMAGES && resuleCode == Activity.RESULT_OK ) {
 
+
             ArrayList<Uri> image_uris = intent.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS);
-            Toast.makeText(getContext(), image_uris.size()+" ", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(getContext(), image_uris.size()+" ", Toast.LENGTH_SHORT).show();
 
             Intent intent1 = new Intent(getContext(),ComplaintCatagoryLocation.class);
-
-
-            Bundle args = new Bundle();
-            args.putSerializable("ARRAYLIST",(Serializable)image_uris);
-            intent1.putExtra("BUNDLE",args);
-            intent1.putExtra("noofimages",image_uris.size());
+            intent1.putExtra("imagesuri",image_uris);
 
             startActivity(intent1);
             //do something//
