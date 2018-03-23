@@ -14,13 +14,20 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -29,6 +36,7 @@ import com.squareup.picasso.Picasso;
 public class YourComplaintsFragment extends Fragment {
 
     private RecyclerView recyclerView;
+    private String UserId="123";
 
     public YourComplaintsFragment() {
         // Required empty public constructor
@@ -72,12 +80,14 @@ public class YourComplaintsFragment extends Fragment {
                 holder.setName("Name");
                 holder.setStatus(user.getComplaint_status());
                 holder.setTime(user.getComplaint_request_time());
-                holder.setDes(user.getComplaint_dis());
+                holder.setDes(user.getComplaint_description());
                 holder.setAdd(user.getComplaint_full_address());
                 holder.setShare(user.getComplaint_share());
                 holder.setVote(user.getComplaint_votes());
+                holder.setImage(getRef(position).getKey());
                 final LinearLayout VoteLayout = holder.getView().findViewById(R.id.vote_layout);
                 final LinearLayout ShareLayout = holder.getView().findViewById(R.id.vote_layout);
+                final ImageView VoteImg = holder.getView().findViewById(R.id.vote_img);
 
 
 
@@ -86,6 +96,12 @@ public class YourComplaintsFragment extends Fragment {
                     public void onClick(View view) {
                         Intent intent = new Intent(getContext(),ComplaintActivity.class);
                         intent.putExtra("key",getRef(position).getKey());
+                        intent.putExtra("name","name");
+                        intent.putExtra("time",user.getComplaint_request_time());
+                        intent.putExtra("description",user.getComplaint_description());
+                        intent.putExtra("add",user.getComplaint_full_address());
+                        intent.putExtra("vote",user.getComplaint_votes());
+                        intent.putExtra("share",user.getComplaint_share());
                         startActivity(intent);
                     }
                 });
@@ -94,11 +110,67 @@ public class YourComplaintsFragment extends Fragment {
                 holder.getView().findViewById(R.id.vote_layout).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
-                                .child("complaints").child(getRef(position).getKey());
-                        int i = Integer.parseInt(user.getComplaint_votes());
-                                reference.child("complaint_votes").setValue(i+1+"");
-                                VoteLayout.setAlpha(1);
+
+                        final DatabaseReference referenceVote = FirebaseDatabase.getInstance().getReference()
+                                .child("vote").child(getRef(position).getKey().toString());
+                        referenceVote.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if(dataSnapshot.hasChild(UserId)){
+                                    referenceVote.child(UserId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                   if(dataSnapshot.getValue().equals("true")){
+                                                       referenceVote.child(UserId).setValue("false");
+                                                       DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
+                                                               .child("complaints").child(getRef(position).getKey());
+                                                       int i = Integer.parseInt(user.getComplaint_votes());
+                                                       i=i-1;
+                                                       reference.child("complaint_votes").setValue(i+"");
+                                                       Toast.makeText(getContext(), "vote -", Toast.LENGTH_SHORT).show();
+                                                       VoteImg.setImageResource(R.drawable.like);
+                                                   }
+                                                   else{
+                                                       referenceVote.child(UserId).setValue("true");
+                                                       DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
+                                                               .child("complaints").child(getRef(position).getKey());
+                                                       int i = Integer.parseInt(user.getComplaint_votes());
+                                                       reference.child("complaint_votes").setValue(i+1+"");
+                                                       Toast.makeText(getContext(), "vote +", Toast.LENGTH_SHORT).show();
+
+                                                       VoteImg.setImageResource(R.drawable.unlike);
+                                                   }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                }
+                                else {
+                                    HashMap<String,String> Vote = new HashMap<>();
+                                    Vote.put("complainer_id",getRef(position).getKey().toString());
+
+                                    DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
+                                            .child("complaints").child(getRef(position).getKey());
+                                    int i = Integer.parseInt(user.getComplaint_votes());
+                                    reference.child("complaint_votes").setValue(i+1+"");
+
+                                    VoteImg.setImageResource(R.drawable.like);
+                                    referenceVote.child(UserId).setValue("true");
+                                    Toast.makeText(getContext(), "vote"+getRef(position).getKey().toString(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+
 
                     }
                 });
@@ -110,7 +182,7 @@ public class YourComplaintsFragment extends Fragment {
                                 .child("complaints").child(getRef(position).getKey());
                         int i = Integer.parseInt(user.getComplaint_share());
                         reference.child("complaint_share").setValue(i+1+"");
-                        ShareLayout.setAlpha(1);
+
                     }
                 });
 
@@ -160,9 +232,9 @@ public class YourComplaintsFragment extends Fragment {
             Picasso.with(getContext()).load(image).into(img);
         }
 
-        public void setTime(String title){
-            long l = Long.parseLong(title);
-            String s = Time.getTimeAgo(l,getContext());
+        public void setTime(long title){
+
+            String s = Time.getTimeAgo(title,getContext());
             TextView textView = mView.findViewById(R.id.time_com_txt);
             textView.setText(s);
         }
@@ -185,6 +257,33 @@ public class YourComplaintsFragment extends Fragment {
         public void setShare(String title){
             TextView textView = mView.findViewById(R.id.share_com_txt);
             textView.setText(title+" Share");
+        }
+
+        public void setImage(String id){
+            final ImageView imageView = mView.findViewById(R.id.vote_img);
+            final DatabaseReference referenceVote = FirebaseDatabase.getInstance().getReference()
+                    .child("vote").child(id);
+
+            referenceVote.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.hasChild(UserId)){
+                        if(dataSnapshot.child(UserId).getValue().equals("true")){
+                             imageView.setImageResource(R.drawable.like);
+                        }
+                        else {
+                            imageView.setImageResource(R.drawable.unlike);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+
         }
 
 

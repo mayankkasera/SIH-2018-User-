@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
         if(mUser==null)
         {
-            goToLoginPage();
+      //      goToLoginPage();
         }
 
 
