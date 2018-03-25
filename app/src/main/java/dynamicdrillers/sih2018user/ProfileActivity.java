@@ -1,6 +1,9 @@
 package dynamicdrillers.sih2018user;
 
 import android.app.Dialog;
+import android.content.Intent;
+import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -12,12 +15,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -48,6 +56,7 @@ public class ProfileActivity extends AppCompatActivity {
     pending  = findViewById(R.id.pending_profile_textview);
     profile = findViewById(R.id.profile_id);
     edit_name = findViewById(R.id.editName_profile_imageview);
+
 
     
     
@@ -96,8 +105,24 @@ public class ProfileActivity extends AppCompatActivity {
             });
 
 
+
+
+
         }
     });
+
+
+        profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), 0);
+
+
+            }
+        });
 
 
     mRoot.child("Users").child(mAuth.getCurrentUser().getUid().toString()).addValueEventListener(new ValueEventListener() {
@@ -129,6 +154,43 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+//        spotsDialog.show();
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         spotsDialog.show();
+        switch (requestCode)
+        {
+            case  0 : if(RESULT_OK==resultCode)
+            {
+                Uri selectedImage = data.getData();
+                
+                StorageReference mStorage = FirebaseStorage.getInstance().getReference();
+                mStorage.child("profilepics").child(mAuth.getCurrentUser().getUid().toString()+".jpg").putFile(selectedImage).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                        if(task.isSuccessful())
+                        {
+                            mRoot.child("Users").child(mAuth.getCurrentUser().getUid().toString()).child("image").setValue(task.getResult().getDownloadUrl().toString());
+                        }
+
+                        spotsDialog.dismiss();
+                        Toast.makeText(ProfileActivity.this, "Profile Picture Updated..", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            else
+            {
+                spotsDialog.dismiss();
+            }
+            break;
+        }
     }
 }
+
+
+

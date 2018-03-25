@@ -271,9 +271,9 @@ public class YourComplaintsFragment extends Fragment {
             Picasso.with(getContext()).load(image).into(img);
         }
 
-        public void setTime(long title){
+        public void setTime(String title){
 
-            String s = Time.getTimeAgo(title,getContext());
+            String s = Time.getTimeAgo(Long.parseLong(title),getContext());
             TextView textView = mView.findViewById(R.id.time_com_txt);
             textView.setText(s);
         }

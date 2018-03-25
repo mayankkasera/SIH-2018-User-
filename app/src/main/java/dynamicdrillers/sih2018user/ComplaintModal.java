@@ -6,7 +6,7 @@ package dynamicdrillers.sih2018user;
 
 public class ComplaintModal {
 
-    private Long complaint_request_time;
+    private String complaint_request_time;
     private String complaint_full_address;
     private String complaint_votes;
     private String complaint_share;
@@ -14,7 +14,7 @@ public class ComplaintModal {
     private String complaint_description;
     private String complainer_id;
 
-    public ComplaintModal(Long complaint_request_time, String complaint_full_address, String complaint_votes, String complaint_share, String complaint_status, String complaint_description, String complainer_id) {
+    public ComplaintModal(String complaint_request_time, String complaint_full_address, String complaint_votes, String complaint_share, String complaint_status, String complaint_description, String complainer_id) {
         this.complaint_request_time = complaint_request_time;
         this.complaint_full_address = complaint_full_address;
         this.complaint_votes = complaint_votes;
@@ -41,11 +41,11 @@ public class ComplaintModal {
         return complaint_status;
     }
 
-    public Long getComplaint_request_time() {
+    public String getComplaint_request_time() {
         return complaint_request_time;
     }
 
-    public void setComplaint_request_time(Long complaint_request_time) {
+    public void setComplaint_request_time(String complaint_request_time) {
         this.complaint_request_time = complaint_request_time;
     }
 
