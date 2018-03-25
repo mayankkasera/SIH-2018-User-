@@ -8,9 +8,7 @@
 
     tools:context="dynamicdrillers.sih2018user.ComplaintActivity">
 
-    <include
-        android:id="@+id/main_toolbar"
-        layout="@layout/main_toolbar" />
+
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/complaint_des_recyclerView"

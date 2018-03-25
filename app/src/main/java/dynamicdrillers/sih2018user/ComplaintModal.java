@@ -14,6 +14,7 @@ public class ComplaintModal {
     private String complaint_description;
     private String complainer_id;
 
+
     public ComplaintModal(String complaint_request_time, String complaint_full_address, String complaint_votes, String complaint_share, String complaint_status, String complaint_description, String complainer_id) {
         this.complaint_request_time = complaint_request_time;
         this.complaint_full_address = complaint_full_address;

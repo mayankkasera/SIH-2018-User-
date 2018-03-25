@@ -38,7 +38,7 @@ public class ComplaintActivity extends AppCompatActivity {
     private String key;
     private String Name,Dis,Add,Vote,Share;
     private long time;
-    private TextView NameTxt,TimeTxt,DisTxt,AddTxt,VoteTxt,ShareTxt;
+    private TextView NameTxt,TimeTxt,DisTxt,AddTxt,VoteTxt,ShareTxt,complaint_status;
     private String UserId="";
     private  String ComplainerUserId ;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -76,6 +76,8 @@ public class ComplaintActivity extends AppCompatActivity {
         ShareTxt = findViewById(R.id.share_com_txt);
         voteimg  =findViewById(R.id.vote_img);
         profileImage = findViewById(R.id.profile_image);
+        complaint_status = findViewById(R.id.status_com_txt);
+
 
 
         NameTxt.setText(Name);
@@ -94,6 +96,9 @@ public class ComplaintActivity extends AppCompatActivity {
                 Share = dataSnapshot.child("complaint_share").getValue().toString();
                 VoteTxt.setText(dataSnapshot.child("complaint_votes").getValue()+ " Votes");
                 ShareTxt.setText(Share+" Share");
+                complaint_status.setText(dataSnapshot.child("complaint_status").getValue().toString());
+                setTime(dataSnapshot.child("complaint_request_time").getValue().toString());
+
             }
 
             @Override
@@ -278,8 +283,17 @@ public class ComplaintActivity extends AppCompatActivity {
 
     }
 
+    public void setTime(String title){
+
+        String s = Time.getTimeAgo(Long.parseLong(title),getBaseContext());
+        TextView textView = findViewById(R.id.time_com_txt);
+        textView.setText(s);
+    }
+
+
     public class ComplaintDisViewHolder extends RecyclerView.ViewHolder {
         View mView;
+
 
 
         public ComplaintDisViewHolder(View itemView) {
@@ -307,3 +321,5 @@ public class ComplaintActivity extends AppCompatActivity {
     }
 
 }
+
+
