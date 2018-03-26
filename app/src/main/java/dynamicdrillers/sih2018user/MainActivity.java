@@ -24,6 +24,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private NavigationView navigationView;
     CircleImageView ProfileImage;
     TextView name,mobile,state;
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
 
     @Override
@@ -76,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
                     case  R.id.navigation_logout:
                         Toast.makeText(getBaseContext(), "logout successfuly", Toast.LENGTH_SHORT).show();
                         FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                        FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid()).child("token").setValue("");
+
+
                         mAuth.signOut();
 
                         goToLoginPage();

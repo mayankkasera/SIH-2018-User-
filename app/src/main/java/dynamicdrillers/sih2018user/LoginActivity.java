@@ -28,6 +28,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -60,16 +61,18 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                // Doing Mobile Number Validation
-                if(validateMobileNo(mobileNo.getEditText().getText().toString()))
-                {
-                    spotsDialog.show();
-                    sendVerificationCode(mobileNo.getEditText().getText().toString());
+                sendVerificationCode(mobileNo.getEditText().getText().toString());
 
-                }
-                else{
-                    mobileNo.setError("Please Enter Correct Mobile Number");
-                }
+                // Doing Mobile Number Validation
+//                if(validateMobileNo(mobileNo.getEditText().getText().toString()))
+//                {
+//                    spotsDialog.show();
+//                    sendVerificationCode(mobileNo.getEditText().getText().toString());
+//
+//                }
+//                else{
+//                    mobileNo.setError("Please Enter Correct Mobile Number");
+//                }
 
             }
         });
@@ -132,8 +135,13 @@ public class LoginActivity extends AppCompatActivity {
                         if(dataSnapshot.child(task.getResult().getUser().getUid().toString()).exists())
                         {
                             spotsDialog.dismiss();
+
+                            FirebaseDatabase.getInstance().getReference().child("Users").child(task.getResult()
+                                    .getUser().getUid()).child("token").setValue(FirebaseInstanceId.getInstance().getToken());
+
                             // Sending to mainActivity
                             startActivity(new Intent(LoginActivity.this,MainActivity.class));
+
                             finish();
                         }
                         else
@@ -145,6 +153,7 @@ public class LoginActivity extends AppCompatActivity {
                             user.put("image","https://www.alectro.com.au/libraries/images/icons/Male_Profile_Picture_Silhouette_Profile_Grey.png");
                             user.put("resolvedcomplaints","0");
                             user.put("pendingcomplaints","0");
+                            user.put("token", FirebaseInstanceId.getInstance().getToken());
                             databaseReference.child("Users").child(task.getResult().getUser().getUid()).setValue(user);
 
                             // Sending to mainActivity

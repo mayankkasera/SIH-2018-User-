@@ -33,6 +33,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -175,6 +176,8 @@ public class OtpVerificationActivity extends AppCompatActivity {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if(dataSnapshot.child(task.getResult().getUser().getUid().toString()).exists())
                             {
+                                FirebaseDatabase.getInstance().getReference().child("Users").child(task.getResult()
+                                        .getUser().getUid()).child("token").setValue(FirebaseInstanceId.getInstance().getToken());
 
                                 startActivity(new Intent(OtpVerificationActivity.this,MainActivity.class));
                                 finish();
@@ -187,6 +190,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
                                 user.put("image","https://www.alectro.com.au/libraries/images/icons/Male_Profile_Picture_Silhouette_Profile_Grey.png");
                                 user.put("resolvedcomplaints","0");
                                 user.put("pendingcomplaints","0");
+                                user.put("token", FirebaseInstanceId.getInstance().getToken());
                                 FirebaseDatabase.getInstance().getReference().child("Users").child(task.getResult().getUser().getUid()).setValue(user);
 
                                 // Sending to mainActivity
