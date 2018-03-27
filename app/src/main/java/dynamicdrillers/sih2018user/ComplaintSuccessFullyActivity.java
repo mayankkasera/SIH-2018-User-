@@ -71,8 +71,8 @@ public class ComplaintSuccessFullyActivity extends AppCompatActivity {
 
                 final HashMap<String,String> param = new HashMap<>();
                 param.put("receivertoken",TokenUID);
-                param.put("description","at " +Address);
-                param.put("title","New "+ComplaintCatagory+" Complaint..");
+                param.put("description","from " +Address);
+                param.put("title","New Complaint Arrived ");
                 return  param;
             }
         };

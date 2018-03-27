@@ -258,6 +258,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
                     }
                     spotsDialog.dismiss();
 
+                    sendSmsToPhone(mAuth.getCurrentUser().getPhoneNumber(),Complaintid);
 
                     FirebaseDatabase.getInstance().getReference().child("region_admin").child(localAuthorityid).addValueEventListener(new ValueEventListener() {
                         @Override
@@ -297,6 +298,35 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
     }
 
+    private void sendSmsToPhone(String phoneNumber, final String Complaintid) {
+
+        StringRequest stringRequest = new StringRequest(StringRequest.Method.POST, "http://happystore.16mb.com/sihapi/SmsApi.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Toast.makeText(ComplaintCatagoryLocation.this, "Sms Sent", Toast.LENGTH_SHORT).show();
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String,String> param = new HashMap<>();
+                param.put("mobileno",mAuth.getCurrentUser().getPhoneNumber());
+                param.put("message","Thank you Your Complaint Has Been Registered \n\n Your Complaint id is "+Complaintid+"\n\n Complaint Status : PENDING \n\n ADMIN SIH 2018\n(Byte Walker)");
+                return  param;
+            }
+
+            
+            
+        };
+        
+        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
+    }
 
 
     public  void init()
