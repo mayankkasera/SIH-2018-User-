@@ -1,7 +1,14 @@
 package dynamicdrillers.sih2018user;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,16 +26,26 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.gun0912.tedpicker.Config;
+import com.gun0912.tedpicker.ImagePickerActivity;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.security.Key;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -36,15 +54,21 @@ public class ComplaintActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private String key;
-    private String Name,Dis,Add,Vote,Share;
-    private long time;
-    private TextView NameTxt,TimeTxt,DisTxt,AddTxt,VoteTxt,ShareTxt,complaint_status;
+    private String Name,Dis,Add,Vote,Share,Status,time;
+    private ProgressDialog progressBar;
+    private TextView NameTxt,TimeTxt,DisTxt,AddTxt,VoteTxt,ShareTxt,complaint_status,StatusTxt;
     private String UserId="";
     private  String ComplainerUserId ;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private ImageView voteimg;
     private String TAG="bc";
     private CircleImageView profileImage;
+    private ImageView deleteImg;
+    private int flag = 0;
+    private  DatabaseReference referenceVote  = null;
+    private static final int INTENT_REQUEST_GET_IMAGES = 13;
+    private StorageReference mStorage;
+
 
 
 
@@ -59,12 +83,16 @@ public class ComplaintActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
+        mStorage = FirebaseStorage.getInstance().getReference();
+
         key = getIntent().getStringExtra("key");
         Name = getIntent().getStringExtra("name");
-        time = getIntent().getLongExtra("time",0);
+        time = getIntent().getStringExtra("time");
         Dis = getIntent().getStringExtra("description");
         Add = getIntent().getStringExtra("add");
         ComplainerUserId = getIntent().getStringExtra("userid");
+        Status = getIntent().getStringExtra("status");
+
 
         Toast.makeText(this, ""+key, Toast.LENGTH_SHORT).show();
 
@@ -77,27 +105,34 @@ public class ComplaintActivity extends AppCompatActivity {
         voteimg  =findViewById(R.id.vote_img);
         profileImage = findViewById(R.id.profile_image);
         complaint_status = findViewById(R.id.status_com_txt);
+        StatusTxt = findViewById(R.id.status_com_txt);
+        deleteImg = findViewById(R.id.delete_complaint);
 
 
 
         NameTxt.setText(Name);
-        TimeTxt.setText(Time.getTimeAgo(time,this));
+        Long l = Long.parseLong(time);
+        TimeTxt.setText(Time.getTimeAgo(l,this));
         DisTxt.setText(Dis);
         AddTxt.setText(Add);
+        StatusTxt.setText(Status);
 
 
-        DatabaseReference referenceVote = FirebaseDatabase.getInstance().getReference()
+        referenceVote = FirebaseDatabase.getInstance().getReference()
                 .child("complaints").child(key);
-
-        referenceVote.addValueEventListener(new ValueEventListener() {
+        final ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Vote = dataSnapshot.child("complaint_votes").getValue().toString();
-                Share = dataSnapshot.child("complaint_share").getValue().toString();
-                VoteTxt.setText(dataSnapshot.child("complaint_votes").getValue()+ " Votes");
-                ShareTxt.setText(Share+" Share");
-                complaint_status.setText(dataSnapshot.child("complaint_status").getValue().toString());
-                setTime(dataSnapshot.child("complaint_request_time").getValue().toString());
+
+
+                    Vote = dataSnapshot.child("complaint_votes").getValue().toString();
+                    Share = dataSnapshot.child("complaint_share").getValue().toString();
+                    VoteTxt.setText(dataSnapshot.child("complaint_votes").getValue()+ " Votes");
+                    ShareTxt.setText(Share+" Share");
+                    complaint_status.setText(dataSnapshot.child("complaint_status").getValue().toString());
+                    setTime(dataSnapshot.child("complaint_request_time").getValue().toString());
+
+
 
             }
 
@@ -105,7 +140,79 @@ public class ComplaintActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
 
             }
+        };
+
+        referenceVote.addValueEventListener(valueEventListener);
+
+
+
+        deleteImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                        Intent intent = new Intent(getApplicationContext(),DeleteActivity.class);
+                        intent.putExtra("key",key);
+                        startActivity(intent);
+                        finish();
+
+
+
+                    }
+
         });
+
+        StatusTxt.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+               if(StatusTxt.getText().equals("Reject")){
+                   final Dialog dialog = new Dialog(ComplaintActivity.this);
+                   dialog.setContentView(R.layout.reject_complaint_dialog_layout);
+                   dialog.setTitle("Reject Reasion ");
+
+                   final TextView Reject  = (TextView) dialog.findViewById(R.id.reject_txt);
+                   final Button ok = (Button) dialog.findViewById(R.id.ok_btn);
+
+                   FirebaseDatabase.getInstance().getReference().child("complaints").child(key)
+                           .addValueEventListener(new ValueEventListener() {
+                               @Override
+                               public void onDataChange(DataSnapshot dataSnapshot) {
+                                   Reject.setText(dataSnapshot.child("Reject Reason").getValue().toString());
+                               }
+
+                               @Override
+                               public void onCancelled(DatabaseError databaseError) {
+
+                               }
+                           });
+
+                   ok.setOnClickListener(new View.OnClickListener() {
+                       @Override
+                       public void onClick(View view) {
+                           dialog.dismiss();
+                       }
+                   });
+
+                   dialog.show();
+
+               }
+
+               if(!StatusTxt.getText().equals("Reject")){
+                   if(!StatusTxt.getText().equals("Resolved"))
+                        checkPermissions();
+               }
+
+
+
+
+
+            }
+        });
+
+
+
+
 
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(ComplainerUserId);
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -241,6 +348,9 @@ public class ComplaintActivity extends AppCompatActivity {
     }
 
 
+
+
+
     public void onStart() {
         super.onStart();
 
@@ -319,6 +429,84 @@ public class ComplaintActivity extends AppCompatActivity {
         }
 
     }
+
+    void checkPermissions(){
+        String s[]={android.Manifest.permission.CAMERA, android.Manifest.permission.READ_EXTERNAL_STORAGE};
+        if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)== PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                getImages();
+            }
+            else{
+                ActivityCompat.requestPermissions((Activity) this,s,123);
+            }
+        }
+        else{
+            ActivityCompat.requestPermissions((Activity) this,s,123);
+        }
+    }
+
+    private void getImages() {
+        Config config = new Config();
+        config.setSelectionMin(1);
+        config.setSelectionLimit(4);
+        ImagePickerActivity.setConfig(config);
+        Intent intent  = new Intent(this, ImagePickerActivity.class);
+        startActivityForResult(intent,INTENT_REQUEST_GET_IMAGES);
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resuleCode, final Intent intent) {
+        super.onActivityResult(requestCode, resuleCode, intent);
+
+        if (requestCode == INTENT_REQUEST_GET_IMAGES && resuleCode == Activity.RESULT_OK ) {
+            progressBar = new ProgressDialog(this);
+            progressBar.setMessage("INITIALIZING ...");
+            progressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressBar.show();
+
+
+            ArrayList<Uri> image_uris = intent.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS);
+            Toast.makeText(this, image_uris.size()+" "+image_uris.toString(), Toast.LENGTH_SHORT).show();
+
+            final DatabaseReference  reference = FirebaseDatabase.getInstance().getReference();
+            for (int i = 0;i<image_uris.size();i++ )
+            {
+                final int finalI = i;
+                Toast.makeText(this, ""+key, Toast.LENGTH_SHORT).show();
+                Uri img_uri = Uri.fromFile(new File(String.valueOf(image_uris.get(i))));
+                mStorage.child("complaints").child(key+"_request_response_"+(i+1)+".jpg").putFile(img_uri)
+                        .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                                Toast.makeText(getApplicationContext(), "image " + finalI + "uploaded", Toast.LENGTH_SHORT).show();
+                                HashMap<String,String> data = new HashMap<>();
+                                data.put("image",task.getResult().getDownloadUrl().toString());
+                                data.put("type","request response");
+                                reference.child("complaints").child(key).child("images").push().setValue(data).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        progressBar.dismiss();
+                                        Intent intent1 = new Intent(ComplaintActivity.this,MainActivity.class);
+                                        startActivity(intent1);
+                                        finish();
+                                        FirebaseDatabase.getInstance().getReference().child("complaints").child(key)
+                                                .child("complaint_resolved_time").setValue(ServerValue.TIMESTAMP);
+
+                                        FirebaseDatabase.getInstance().getReference()
+                                                .child("complaints").child(key).child("complaint_status").setValue("Resolved");
+                                    }
+                                });
+                            }
+                        });
+            }
+            //do something//
+            progressBar.dismiss();
+        }
+
+    }
+
 
 }
 

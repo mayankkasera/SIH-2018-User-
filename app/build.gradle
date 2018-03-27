@@ -15,7 +15,7 @@ android {
     buildToolsVersion "27.0.2"
     defaultConfig {
         applicationId "dynamicdrillers.sih2018user"
-        manifestPlaceholders = [onesignal_app_id: "dd8f2fc9-e5b2-4346-b44b-de8b68d0eda8",
+        manifestPlaceholders = [onesignal_app_id               : "dd8f2fc9-e5b2-4346-b44b-de8b68d0eda8",
                                 // Project number pulled from dashboard, local value is ignored.
                                 onesignal_google_project_number: "REMOTE"]
 
