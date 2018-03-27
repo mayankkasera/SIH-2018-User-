@@ -12,5 +12,6 @@
     <color name="white">#ffffff</color>
     <color name="gray">#9e9e9e</color>
     <color name="skyblur">#558dff</color>
+    <color name="black">#000000</color>
 
 </resources>
