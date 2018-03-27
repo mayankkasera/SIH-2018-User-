@@ -45,7 +45,7 @@
                 android:layout_weight="1"
 
                 android:gravity="center"
-                android:text="+91092487474"
+                android:text=""
                 android:textColor="@color/mediumgray"
                 android:textSize="25sp"
                 android:textStyle="bold" />
@@ -54,7 +54,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:text="@string/enter_4_digit_otp_below"
+                android:text="Enter 6 Digit Verification Code"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="13sp"
                 android:gravity="center"

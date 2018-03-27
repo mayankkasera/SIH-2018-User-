@@ -1,17 +1,16 @@
 package dynamicdrillers.sih2018user;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,27 +18,33 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.security.Key;
 import java.util.HashMap;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class ComplaintActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private String key;
-    private String Name,Dis,Add,Vote,Share,Status;
+    private String Name,Dis,Add,Vote,Share;
     private long time;
-    private TextView NameTxt,TimeTxt,DisTxt,AddTxt,VoteTxt,ShareTxt,StatusTxt;
-    private String UserId="123";
-
+    private TextView NameTxt,TimeTxt,DisTxt,AddTxt,VoteTxt,ShareTxt,complaint_status;
+    private String UserId="";
+    private  String ComplainerUserId ;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private ImageView voteimg;
+    private String TAG="bc";
+    private CircleImageView profileImage;
 
 
 
@@ -48,6 +53,7 @@ public class ComplaintActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_complaint);
+        UserId = mAuth.getCurrentUser().getUid().toString();
 
         recyclerView = findViewById(R.id.complaint_des_recyclerView);
         recyclerView.setHasFixedSize(true);
@@ -58,8 +64,7 @@ public class ComplaintActivity extends AppCompatActivity {
         time = getIntent().getLongExtra("time",0);
         Dis = getIntent().getStringExtra("description");
         Add = getIntent().getStringExtra("add");
-        Status = getIntent().getStringExtra("status");
-
+        ComplainerUserId = getIntent().getStringExtra("userid");
 
         Toast.makeText(this, ""+key, Toast.LENGTH_SHORT).show();
 
@@ -69,15 +74,16 @@ public class ComplaintActivity extends AppCompatActivity {
         AddTxt = findViewById(R.id.add_com_txt);
         VoteTxt = findViewById(R.id.vote_com_txt);
         ShareTxt = findViewById(R.id.share_com_txt);
-        StatusTxt = findViewById(R.id.status_com_txt);
+        voteimg  =findViewById(R.id.vote_img);
+        profileImage = findViewById(R.id.profile_image);
+        complaint_status = findViewById(R.id.status_com_txt);
+
 
 
         NameTxt.setText(Name);
         TimeTxt.setText(Time.getTimeAgo(time,this));
         DisTxt.setText(Dis);
         AddTxt.setText(Add);
-        StatusTxt.setText(Status);
-
 
 
         DatabaseReference referenceVote = FirebaseDatabase.getInstance().getReference()
@@ -90,6 +96,9 @@ public class ComplaintActivity extends AppCompatActivity {
                 Share = dataSnapshot.child("complaint_share").getValue().toString();
                 VoteTxt.setText(dataSnapshot.child("complaint_votes").getValue()+ " Votes");
                 ShareTxt.setText(Share+" Share");
+                complaint_status.setText(dataSnapshot.child("complaint_status").getValue().toString());
+                setTime(dataSnapshot.child("complaint_request_time").getValue().toString());
+
             }
 
             @Override
@@ -98,15 +107,54 @@ public class ComplaintActivity extends AppCompatActivity {
             }
         });
 
-        StatusTxt.setOnClickListener(new View.OnClickListener() {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(ComplainerUserId);
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onClick(View v) {
-                regectComplaint();
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+               Picasso.with(getApplicationContext()).load(dataSnapshot.child("image").getValue().toString()).into(profileImage);
+                NameTxt.setText(dataSnapshot.child("name").getValue().toString());
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
             }
         });
 
-        VoteTxt.setText(Vote+ " Votes");
+
+        final DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
+                .child("vote").child(key);
+
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.hasChild(UserId)){
+                    if(dataSnapshot.child(UserId).getValue().equals("true")){
+                        voteimg.setImageResource(R.drawable.like);
+                        Toast.makeText(ComplaintActivity.this,"true", Toast.LENGTH_SHORT).show();
+
+                    }
+                    else {
+                        voteimg.setImageResource(R.drawable.unlike);
+                        Toast.makeText(ComplaintActivity.this, "false", Toast.LENGTH_SHORT).show();
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+
+
+              VoteTxt.setText(Vote+ " Votes");
 
         final ImageView VoteImg = findViewById(R.id.vote_img);
 
@@ -139,22 +187,24 @@ public class ComplaintActivity extends AppCompatActivity {
                                         referenceVote.child(UserId).setValue("false");
                                         DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
                                                 .child("complaints").child(key);
-                                        int i = Integer.parseInt(Vote);
+
+
+                                        int i = Integer.parseInt(String.valueOf(Vote));
                                         i=i-1;
                                         reference.child("complaint_votes").setValue(i+"");
                                         Toast.makeText(ComplaintActivity.this, "vote -", Toast.LENGTH_SHORT).show();
-                                        VoteImg.setImageResource(R.drawable.unlike);
+                                        //VoteImg.setImageResource(R.drawable.unlike);
                                     }
                                     else{
                                         referenceVote.child(UserId).setValue("true");
                                         DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
                                                 .child("complaints").child(key);
-                                        int i = Integer.parseInt(Vote);
+                                        int i = Integer.parseInt(String.valueOf(Vote));
                                         i = i+1;
                                         reference.child("complaint_votes").setValue(i+"");
                                         Toast.makeText(ComplaintActivity.this, "vote +", Toast.LENGTH_SHORT).show();
 
-                                        VoteImg.setImageResource(R.drawable.like);
+                                        //VoteImg.setImageResource(R.drawable.like);
                                     }
                                 }
 
@@ -165,15 +215,13 @@ public class ComplaintActivity extends AppCompatActivity {
                             });
                         }
                         else {
-                            HashMap<String,String> Vote = new HashMap<>();
-                            Vote.put("complainer_id",key);
 
                             DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
                                     .child("complaints").child(key);
                             int i = Integer.parseInt(String.valueOf(Vote));
                             reference.child("complaint_votes").setValue(i+1+"");
 
-                            VoteImg.setImageResource(R.drawable.unlike);
+                           // VoteImg.setImageResource(R.drawable.unlike);
                             referenceVote.child(UserId).setValue("true");
                             Toast.makeText(ComplaintActivity.this, "vote"+key.toString(), Toast.LENGTH_SHORT).show();
                         }
@@ -189,43 +237,6 @@ public class ComplaintActivity extends AppCompatActivity {
 
             }
         });
-
-    }
-
-    private void regectComplaint() {
-        final Dialog dialog = new Dialog(ComplaintActivity.this);
-        dialog.setContentView(R.layout.reject_complaint_dialog_layout);
-        dialog.setTitle("Reject Complaint ");
-
-        final EditText editText = (EditText)dialog.findViewById(R.id.reject_edt);
-        Button button = (Button)dialog.findViewById(R.id.reject_btn);
-
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-
-//
-//                FirebaseDatabase.getInstance().getReference().child("complaints").child(key)
-//                        .child("complaint_status").setValue("Reject");
-//                FirebaseDatabase.getInstance().getReference().child("complaints").child(key)
-//                        .child("Reject Reason").setValue(editText.getText().toString());
-//                FirebaseDatabase.getInstance().getReference().child("complaints").child(key)
-//                        .child("complaint_reject_time").setValue(ServerValue.TIMESTAMP);
-//                FirebaseDatabase.getInstance().getReference().child("complaints").child(key)
-//                        .child("complaint_reject_time").setValue(ServerValue.TIMESTAMP);
-//                FirebaseDatabase.getInstance().getReference().child("complaints").child(key)
-//                        .child("complaint_reject_by").setValue("user");
-//
-
-                //startActivity(new Intent(ComplaintActivity.this,DashboardActivity.class));
-                Toast.makeText(ComplaintActivity.this, "yes", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-            }
-        });
-
-        dialog.show() ;
-
 
     }
 
@@ -272,8 +283,17 @@ public class ComplaintActivity extends AppCompatActivity {
 
     }
 
+    public void setTime(String title){
+
+        String s = Time.getTimeAgo(Long.parseLong(title),getBaseContext());
+        TextView textView = findViewById(R.id.time_com_txt);
+        textView.setText(s);
+    }
+
+
     public class ComplaintDisViewHolder extends RecyclerView.ViewHolder {
         View mView;
+
 
 
         public ComplaintDisViewHolder(View itemView) {
@@ -301,3 +321,5 @@ public class ComplaintActivity extends AppCompatActivity {
     }
 
 }
+
+

@@ -1,6 +1,8 @@
 package dynamicdrillers.sih2018user;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
@@ -31,6 +33,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +45,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
     LinearLayout done;
     Pinview pinview;
     String fullotp;
-    TextView resendCode;
+    TextView resendCode,MobilNoToverify;
     String verificationId,mobileNo;
     SpotsDialog spotsDialog ;
     PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallback;
@@ -53,9 +56,14 @@ public class OtpVerificationActivity extends AppCompatActivity {
         spotsDialog = new SpotsDialog(this);
         verificationId = getIntent().getStringExtra("verificationId");
         mobileNo = getIntent().getStringExtra("mobileno");
+
         done = (LinearLayout)findViewById(R.id.doneVerification_otpverification_linearlayout);
         pinview = (Pinview)findViewById(R.id.pinview);
         resendCode = (TextView)findViewById(R.id.resendCode_otpVerification_text);
+        MobilNoToverify = findViewById(R.id.editMobileNo_otpverification_txt);
+
+        MobilNoToverify.setText(mobileNo);
+
 
 
 
@@ -97,7 +105,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                PhoneAuthProvider.getInstance().verifyPhoneNumber(mobileNo
+                PhoneAuthProvider.getInstance().verifyPhoneNumber("+91"+mobileNo
                         ,60
                         , TimeUnit.SECONDS
                         ,OtpVerificationActivity.this
@@ -168,7 +176,9 @@ public class OtpVerificationActivity extends AppCompatActivity {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if(dataSnapshot.child(task.getResult().getUser().getUid().toString()).exists())
                             {
-                                // Sending to mainActivity
+                                FirebaseDatabase.getInstance().getReference().child("Users").child(task.getResult()
+                                        .getUser().getUid()).child("token").setValue(FirebaseInstanceId.getInstance().getToken());
+
                                 startActivity(new Intent(OtpVerificationActivity.this,MainActivity.class));
                                 finish();
                             }
@@ -180,6 +190,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
                                 user.put("image","https://www.alectro.com.au/libraries/images/icons/Male_Profile_Picture_Silhouette_Profile_Grey.png");
                                 user.put("resolvedcomplaints","0");
                                 user.put("pendingcomplaints","0");
+                                user.put("token", FirebaseInstanceId.getInstance().getToken());
                                 FirebaseDatabase.getInstance().getReference().child("Users").child(task.getResult().getUser().getUid()).setValue(user);
 
                                 // Sending to mainActivity

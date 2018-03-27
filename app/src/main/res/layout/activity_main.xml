@@ -1,35 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:orientation="vertical"
+
+<android.support.v4.widget.DrawerLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="dynamicdrillers.sih2018user.MainActivity">
+    android:id="@+id/drawer_main">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="dynamicdrillers.sih2018user.MainActivity">
 
 
         <include layout="@layout/main_toolbar" android:id="@+id/main_toolbar"/>
 
 
-    <android.support.design.widget.TabLayout
-        app:tabTextAppearance="@style/MainTabLayoutTextAppearance"
-        android:id="@+id/main_tablayout"
+        <android.support.design.widget.TabLayout
+            app:tabTextAppearance="@style/MainTabLayoutTextAppearance"
+            android:id="@+id/main_tablayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:background="@color/colorPrimary"
+            app:tabIndicatorColor="@color/white"
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextColor="@color/gray">
+
+        </android.support.design.widget.TabLayout>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/main_viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#EEEEEE"></android.support.v4.view.ViewPager>
+
+    </LinearLayout>
+
+    <android.support.design.widget.NavigationView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="0dp"
-        android:background="@color/colorPrimary"
-        app:tabIndicatorColor="@color/white"
-        app:tabSelectedTextColor="@color/white"
-        app:tabTextColor="@color/gray">
+        android:layout_height="match_parent"
+        android:id="@+id/main_activity_nav"
+        app:menu="@menu/drawer_menu_items"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/header_navigation_layout"
+        >
 
-    </android.support.design.widget.TabLayout>
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/main_viewpager"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#EEEEEE"></android.support.v4.view.ViewPager>
+    </android.support.design.widget.NavigationView>
 
-</LinearLayout>
+
+
+</android.support.v4.widget.DrawerLayout>
+
+
+
+
+
+
+

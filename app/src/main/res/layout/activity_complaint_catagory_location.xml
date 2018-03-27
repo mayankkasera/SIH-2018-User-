@@ -28,18 +28,28 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.5"
-            android:hint="Choose  Complaint Catagory"
+            android:text="Choose  Complaint Catagory"
+            android:textColor="#123"
+            android:textStyle="bold"
             android:gravity="left"/>
 
         <Spinner
             android:id="@+id/complaintCatagory"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:textAlignment="center">
 
         </Spinner>
 
-
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:text="Enter Short Description of your complaint"
+            android:textColor="#123"
+            android:textStyle="bold"
+            android:gravity="left"/>
 
         <EditText
 
@@ -60,6 +70,8 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:background="@color/colorPrimary"
+            android:textColor="@android:color/white"
             android:text="Choose Your Location"/>
 
         <TextView
@@ -68,7 +80,9 @@
             android:layout_height="0dp"
             android:layout_weight="1.5"
             android:gravity="center"
-            android:hint="Your Choosed Address Will Be Here"/>
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimary"
+            android:hint=""/>
 
 
 

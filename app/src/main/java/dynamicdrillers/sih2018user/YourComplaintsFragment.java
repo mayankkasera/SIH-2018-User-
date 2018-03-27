@@ -1,7 +1,9 @@
 package dynamicdrillers.sih2018user;
 
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -18,6 +20,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,6 +32,10 @@ import com.squareup.picasso.Picasso;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
+import static android.content.Context.MODE_PRIVATE;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,7 +43,8 @@ import java.util.Map;
 public class YourComplaintsFragment extends Fragment {
 
     private RecyclerView recyclerView;
-    private String UserId="123";
+    private String UserId="";
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     public YourComplaintsFragment() {
         // Required empty public constructor
@@ -49,9 +57,13 @@ public class YourComplaintsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_your_complaints, container, false);
 
+        UserId = mAuth.getCurrentUser().getUid().toString();
+
         recyclerView = view.findViewById(R.id.your_complaints_recyclerView);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(linearLayoutManager);
 
         return view;
     }
@@ -63,7 +75,7 @@ public class YourComplaintsFragment extends Fragment {
 
         Query query = FirebaseDatabase.getInstance()
                 .getReference()
-                .child("complaints");
+                .child("complaints").orderByChild("complainer_id").equalTo(UserId);
 
 
         FirebaseRecyclerOptions<ComplaintModal> options =
@@ -75,9 +87,34 @@ public class YourComplaintsFragment extends Fragment {
                 = new FirebaseRecyclerAdapter<ComplaintModal,ComplaintViewHolder>(options) {
 
             @Override
-            protected void onBindViewHolder(@NonNull ComplaintViewHolder holder, final int position, @NonNull final ComplaintModal user) {
+            protected void onBindViewHolder(@NonNull final ComplaintViewHolder holder, final int position, @NonNull final ComplaintModal user) {
                 final int pos = position;
-                holder.setName("Name");
+
+
+                String USerID = getRef(position).getKey().toString();
+                final String[] userName = new String[1];
+
+                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(UserId);
+                databaseReference.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        holder.setName(dataSnapshot.child("name").getValue().toString());
+                        holder.setProfileImage(dataSnapshot.child("image").getValue().toString());
+                        userName[0] =dataSnapshot.child("name").getValue().toString();
+
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+
+
+                holder.setName(userName[0]);
                 holder.setStatus(user.getComplaint_status());
                 holder.setTime(user.getComplaint_request_time());
                 holder.setDes(user.getComplaint_description());
@@ -85,6 +122,7 @@ public class YourComplaintsFragment extends Fragment {
                 holder.setShare(user.getComplaint_share());
                 holder.setVote(user.getComplaint_votes());
                 holder.setImage(getRef(position).getKey());
+
                 final LinearLayout VoteLayout = holder.getView().findViewById(R.id.vote_layout);
                 final LinearLayout ShareLayout = holder.getView().findViewById(R.id.vote_layout);
                 final ImageView VoteImg = holder.getView().findViewById(R.id.vote_img);
@@ -95,8 +133,9 @@ public class YourComplaintsFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         Intent intent = new Intent(getContext(),ComplaintActivity.class);
+                        intent.putExtra("userid",user.getComplainer_id());
                         intent.putExtra("key",getRef(position).getKey());
-                        intent.putExtra("name","name");
+                        intent.putExtra("name",userName[0]);
                         intent.putExtra("time",user.getComplaint_request_time());
                         intent.putExtra("description",user.getComplaint_description());
                         intent.putExtra("add",user.getComplaint_full_address());
@@ -129,7 +168,7 @@ public class YourComplaintsFragment extends Fragment {
                                                        i=i-1;
                                                        reference.child("complaint_votes").setValue(i+"");
                                                        Toast.makeText(getContext(), "vote -", Toast.LENGTH_SHORT).show();
-                                                       VoteImg.setImageResource(R.drawable.like);
+                                                      // VoteImg.setImageResource(R.drawable.like);
                                                    }
                                                    else{
                                                        referenceVote.child(UserId).setValue("true");
@@ -139,7 +178,7 @@ public class YourComplaintsFragment extends Fragment {
                                                        reference.child("complaint_votes").setValue(i+1+"");
                                                        Toast.makeText(getContext(), "vote +", Toast.LENGTH_SHORT).show();
 
-                                                       VoteImg.setImageResource(R.drawable.unlike);
+                                                       //VoteImg.setImageResource(R.drawable.unlike);
                                                    }
                                         }
 
@@ -158,7 +197,7 @@ public class YourComplaintsFragment extends Fragment {
                                     int i = Integer.parseInt(user.getComplaint_votes());
                                     reference.child("complaint_votes").setValue(i+1+"");
 
-                                    VoteImg.setImageResource(R.drawable.like);
+                                   // VoteImg.setImageResource(R.drawable.like);
                                     referenceVote.child(UserId).setValue("true");
                                     Toast.makeText(getContext(), "vote"+getRef(position).getKey().toString(), Toast.LENGTH_SHORT).show();
                                 }
@@ -228,13 +267,13 @@ public class YourComplaintsFragment extends Fragment {
 
 
         public void setCategiryImage(String image) {
-            ImageView img =  mView.findViewById(R.id.categiry_com_img);;
+            ImageView img =  mView.findViewById(R.id.user_complainer_img);;
             Picasso.with(getContext()).load(image).into(img);
         }
 
-        public void setTime(long title){
+        public void setTime(String title){
 
-            String s = Time.getTimeAgo(title,getContext());
+            String s = Time.getTimeAgo(Long.parseLong(title),getContext());
             TextView textView = mView.findViewById(R.id.time_com_txt);
             textView.setText(s);
         }
@@ -292,6 +331,12 @@ public class YourComplaintsFragment extends Fragment {
             return this.mView;
         }
 
+        public void setProfileImage(String image) {
+
+            CircleImageView userProfile = mView.findViewById(R.id.user_complainer_img);
+
+            Picasso.with(getContext()).load(image).into(userProfile);
+        }
     }
 
 }

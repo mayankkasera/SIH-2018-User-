@@ -17,20 +17,34 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.gun0912.tedpicker.Config;
 import com.gun0912.tedpicker.ImagePickerActivity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
 
 
 public class HomeFragment extends Fragment {
 
+    String token;
     Button Registor_Button;
     int PLACE_PICKER_REQUEST = 1;
 
@@ -51,11 +65,14 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
+
                 checkPermissions();
+
             }
         });
         return view;
     }
+
 
 
 
@@ -91,6 +108,10 @@ public class HomeFragment extends Fragment {
 
     private void getImages() {
 
+        Config config = new Config();
+        config.setSelectionMin(1);
+        config.setSelectionLimit(4);
+        ImagePickerActivity.setConfig(config);
         Intent intent  = new Intent(getContext(), ImagePickerActivity.class);
         startActivityForResult(intent,INTENT_REQUEST_GET_IMAGES);
 
@@ -102,16 +123,12 @@ public class HomeFragment extends Fragment {
 
         if (requestCode == INTENT_REQUEST_GET_IMAGES && resuleCode == Activity.RESULT_OK ) {
 
+
             ArrayList<Uri> image_uris = intent.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS);
-            Toast.makeText(getContext(), image_uris.size()+" ", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(getContext(), image_uris.size()+" ", Toast.LENGTH_SHORT).show();
 
             Intent intent1 = new Intent(getContext(),ComplaintCatagoryLocation.class);
-
-
-            Bundle args = new Bundle();
-            args.putSerializable("ARRAYLIST",(Serializable)image_uris);
-            intent1.putExtra("BUNDLE",args);
-            intent1.putExtra("noofimages",image_uris.size());
+            intent1.putExtra("imagesuri",image_uris);
 
             startActivity(intent1);
             //do something//

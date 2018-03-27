@@ -18,6 +18,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -28,6 +35,7 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -39,8 +47,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import dmax.dialog.SpotsDialog;
 
@@ -70,7 +80,8 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
     FirebaseAuth mAuth;
     StorageReference mStorage;
     String state,district;
-    String region;
+    int Got_Authority_Flag =0;
+    String Region,USerToken;
 
 
     @Override
@@ -81,22 +92,9 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
         // Intializing Objects
         init();
         spotsDialog = new SpotsDialog(this);
+        spotsDialog.setTitle("Searching nearest authority..");
 
-        //getting Images from INtent
-        intent = getIntent();
-        bundle = intent.getBundleExtra("BUNDLE");
-
-        if(bundle!=null)
-        {
-          imagesUri = (ArrayList<Uri>) bundle.getSerializable("ARRAYLIST");
-            Toast.makeText(this, imagesUri.size()+"", Toast.LENGTH_SHORT).show();
-        }
-
-
-
-
-
-
+        imagesUri = getIntent().getParcelableArrayListExtra("imagesuri");
 
 
         ArrayAdapter<String> ArrayAdaptorcatagory = new ArrayAdapter<String>(this,R.layout.support_simple_spinner_dropdown_item,catagory);
@@ -121,7 +119,8 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-              //  getLocation();
+
+                getLocation();
                 found = false;
 
             }
@@ -132,7 +131,25 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                sendComplaintToDatabase();
+
+                if(!gotLocationChoosed.getText().equals("") && Got_Authority_Flag==1)
+                {
+
+
+                    spotsDialog.show();
+                    sendComplaintToDatabase();
+
+                }
+                else if( Got_Authority_Flag==2)
+                {
+                    Toast.makeText(ComplaintCatagoryLocation.this, "Service is Not Avaiable in your region", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Toast.makeText(ComplaintCatagoryLocation.this, "Please Choose Your Location...", Toast.LENGTH_SHORT).show();
+                }
+
+
             }
         });
 
@@ -146,26 +163,17 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
     private void sendComplaintToDatabase() {
 
-        DatabaseReference reference =  FirebaseDatabase.getInstance().getReference().child("region_admin").child(localAuthorityid);
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                   region = dataSnapshot.child("region").getValue().toString();
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+        final HashMap<String,String> complaint = new HashMap<>();
 
-        HashMap<String,String> complaint = new HashMap<>();
         complaint.put("complainer_id",mAuth.getCurrentUser().getUid().toString());
-        complaint.put("complaint_request_time", String.valueOf(ServerValue.TIMESTAMP));
         complaint.put("complaint_type",ComplaintCatagoryS);
         complaint.put("complaint_description",ComplaintDescription.getText().toString());
-        complaint.put("complainer_region",region.toLowerCase());
-        complaint.put("complainer_state",state.toLowerCase());
+
+
+
+        complaint.put("complainer_state",state);
         complaint.put("complaint_goesto",localAuthorityid);
         complaint.put("complaint_forwardto","default");
         complaint.put("complaint_votes","0");
@@ -174,49 +182,109 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
         complaint.put("complaint_full_address",Myplace.getAddress().toString());
         complaint.put("complaint_status","pending");
         complaint.put("complaint_level","1");
-        complaint.put("complaint_district",district.toLowerCase());
+        complaint.put("complaint_request_No_of_images", String.valueOf(imagesUri.size()));
+        complaint.put("complaint_response_No_of_images","0");
+        complaint.put("complaint_location_latitude", String.valueOf(Myplace.getLatLng().latitude));
+        complaint.put("complaint_location_longitude", String.valueOf(Myplace.getLatLng().longitude));
+        complaint.put("complaint_request_time",String.valueOf(123456));
+        complaint.put("complaint_district",district);
 
-        final String Complaintid = mRoot.child("complaints").push().getKey();
 
+
+        final String Complaintid = mRoot.child("complaints").push().getKey().toString();
 
         mRoot.child("complaints").child(Complaintid).setValue(complaint).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
 
                 if(task.isSuccessful())
                 {
-                    int noOfImages = 0;
-                    noOfImages = getIntent().getIntExtra("noofimages",0);
-                    Toast.makeText(ComplaintCatagoryLocation.this,noOfImages+" " , Toast.LENGTH_SHORT).show();
+                    mRoot.child("complaints").child(Complaintid).child("complaint_request_time").setValue(ServerValue.TIMESTAMP);
 
 
-                    for (int i = 0;i<noOfImages;i++ )
+                    DatabaseReference reference  = FirebaseDatabase.getInstance().getReference().child("region_admin").child(localAuthorityid);
+                    reference.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Region  =  dataSnapshot.child("region").getValue().toString();
+                            mRoot.child("complaints").child(Complaintid).child("complainer_region").setValue(Region.toLowerCase());
+                            Toast.makeText(ComplaintCatagoryLocation.this, Region, Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                    mRoot.child("time").child("t").setValue(ServerValue.TIMESTAMP);
+                    mRoot.child("time").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Long time =  Long.parseLong(dataSnapshot.child("t").getValue().toString());
+                            mRoot.child("complaints").child(Complaintid).child("complaint_request_time").setValue(time.toString());
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                     for (int i = 0;i<imagesUri.size();i++ )
                     {
                         final int finalI = i;
-                        mStorage.child("complaints").child(Complaintid+"_request_"+(i+1)+".jpg").putFile(imagesUri.get(i))
+                        Uri img_uri = Uri.fromFile(new File(String.valueOf(imagesUri.get(i))));
+                        mStorage.child("complaints").child(Complaintid+"_request_"+(i+1)+".jpg").putFile(img_uri)
                                 .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
-                                        Toast.makeText(ComplaintCatagoryLocation.this, "image " + finalI + "uploaded", Toast.LENGTH_SHORT).show();
+                                        HashMap<String,String> data = new HashMap<>();
+                                        data.put("image",task.getResult().getDownloadUrl().toString());
+                                        data.put("type","request");
+
+                                        mRoot.child("complaints").child(Complaintid).child("images").push().setValue(data).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+
+
+                                            }
+                                        });
+
 
                                     }
                                 });
                     }
+                    spotsDialog.dismiss();
+
+
+                    FirebaseDatabase.getInstance().getReference().child("region_admin").child(localAuthorityid).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                           USerToken =  dataSnapshot.child("token").getValue().toString();
+                            Intent i = new Intent(ComplaintCatagoryLocation.this,ComplaintSuccessFullyActivity.class);
+                            i.putExtra("complaintid",Complaintid);
+                            i.putExtra("token",USerToken);
+                            i.putExtra("catagory",ComplaintCatagoryS);
+                            i.putExtra("address",Myplace.getAddress().toString());
+                            startActivity(i);
+                            finish();
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+
                 }
             }
         });
 
-        mRoot.child("complaints").child(Complaintid).setValue(complaint).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
 
-                if(task.isSuccessful())
-                {
-                    Toast.makeText(ComplaintCatagoryLocation.this, "Your Complaint Is Registred..", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
 
 
 
@@ -230,6 +298,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
     }
 
 
+
     public  void init()
     {
 
@@ -239,7 +308,6 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
         ComplaintDescription = findViewById(R.id.description_compliant_edittext);
         SubmitComplaint = findViewById(R.id.submitComplaint_complaint_LinearLayout);
         gotLocationChoosed = findViewById(R.id.gotLocation_complaint_textview);
-        SubmitComplaint.setEnabled(true);
         mAuth = FirebaseAuth.getInstance();
         mRoot = FirebaseDatabase.getInstance().getReference();
         mStorage = FirebaseStorage.getInstance().getReference();
@@ -277,6 +345,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
                     found = true;
                     localAuthorityid = key;
                     Toast.makeText(getApplicationContext(),"Yes Services are available at your location",Toast.LENGTH_SHORT).show();
+                    Got_Authority_Flag = 1;
                     SubmitComplaint.setEnabled(true);
                     spotsDialog.dismiss();
 
@@ -291,20 +360,22 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
             @Override
             public void onKeyMoved(String key, GeoLocation location) {
 
-                Toast.makeText(getApplicationContext(),location.latitude+""+location.longitude,Toast.LENGTH_LONG).show();
+
 
             }
 
             @Override
             public void onGeoQueryReady() {
                 if(!found&&r<100){
-                    r  = r+2;
+                    r  = r+5;
                     fun();
                     spotsDialog.show();
                 }
-                else
+                if(r>100)
                 {
+                    Got_Authority_Flag = 2;
                     Toast.makeText(ComplaintCatagoryLocation.this, "Services Are Not available at your place", Toast.LENGTH_SHORT).show();
+                    spotsDialog.dismiss();
                 }
             }
 
@@ -330,6 +401,10 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        complainerState= "";
+        complainerDistrict = "";
+
         if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
                 spotsDialog.show();
@@ -341,42 +416,32 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
                 if(Myplace.getAddress()!=null){
                     String address[] = Myplace.getAddress().toString().split(",");
 
-
-
-                    if(address.length<=3){
+                    if (address.length <= 3) {
                         Toast.makeText(ComplaintCatagoryLocation.this, "select exact location", Toast.LENGTH_SHORT).show();
-                        spotsDialog.dismiss();
-                    }
-                    else{
-                        String  s[] = address[address.length-2].split(" ");
 
+                    } else {
+                        String state  = address[address.length - 2].replaceAll("\\d","");
 
-                        if(s.length>3){
-                            for(int j=0;j<s.length-1;j++)
-                            {
+                        String dis_s[] = address[address.length-3].split(" ");
+                        for (int j = 0; j < dis_s.length; j++) {
 
-                                complainerState = complainerState+s[j];
-                                complainerState = complainerState.trim().toLowerCase();
+                            complainerDistrict = complainerDistrict + dis_s[j];
 
-
-                            }
-                        }
-                        else{
-
-                            for(int j=0;j<s.length;j++)
-                            {
-
-                                complainerState = complainerState+s[j];
-                                complainerState = complainerState.trim().toLowerCase();
-
-                            }
 
                         }
 
+                        String st_s[] = state.split(" ");
+
+                        for (int j = 0; j < st_s.length; j++) {
+
+                            complainerState = complainerState + st_s[j];
 
 
-                        complainerDistrict = complainerDistrict+address[address.length-3];
-                        complainerDistrict = complainerDistrict.trim().toLowerCase();
+                        }
+
+                        complainerDistrict =  complainerDistrict.trim().toLowerCase();
+                        complainerState = complainerState.trim().toLowerCase();
+
                         String SharedprefenceName = "USER_DATA";
 
                         SharedPreferences sharedPreferences = getSharedPreferences(SharedprefenceName, Context.MODE_PRIVATE);
@@ -387,7 +452,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
                         editor.apply();
 
 
-                       // fun();
+                        fun();
                         complainerState= "";
                         complainerDistrict = "";
 
