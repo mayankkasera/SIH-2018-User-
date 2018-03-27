@@ -259,13 +259,27 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
                     spotsDialog.dismiss();
 
 
+                    FirebaseDatabase.getInstance().getReference().child("region_admin").child(localAuthorityid).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
 
-                     //sendPushNotification(localAuthorityid,ComplaintCatagoryS,Myplace.getAddress().toString());
+                           USerToken =  dataSnapshot.child("token").getValue().toString();
+                            Intent i = new Intent(ComplaintCatagoryLocation.this,ComplaintSuccessFullyActivity.class);
+                            i.putExtra("complaintid",Complaintid);
+                            i.putExtra("token",USerToken);
+                            i.putExtra("catagory",ComplaintCatagoryS);
+                            i.putExtra("address",Myplace.getAddress().toString());
+                            startActivity(i);
+                            finish();
+                        }
 
-                    Intent i = new Intent(ComplaintCatagoryLocation.this,ComplaintSuccessFullyActivity.class);
-                    i.putExtra("complaintid",Complaintid);
-                    startActivity(i);
-                    finish();
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+
                 }
             }
         });
@@ -283,66 +297,6 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
     }
 
-    public void sendPushNotification(final String receiverUID , final String ComplaintCatagory, final String Address) {
-
-
-
-        RequestQueue queue = Volley.newRequestQueue(this);
-
-
-
-        StringRequest stringRequest = new StringRequest(StringRequest.Method.POST, "http://happystore.16mb.com/sihapi/SendNotificationByOneSignal.php"
-                , new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Toast.makeText(ComplaintCatagoryLocation.this, "Notification send" + response.toString(), Toast.LENGTH_SHORT).show();
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(ComplaintCatagoryLocation.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-
-            }
-        }){
-
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-
-
-                final HashMap<String,String> param = new HashMap<>();
-                FirebaseDatabase.getInstance().getReference().child("region_admin").child(receiverUID).addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                        USerToken = dataSnapshot.child("token").getValue().toString();
-
-                        param.put("receivertoken",USerToken);
-
-
-                        param.put("description","at " +Address);
-                        param.put("title","New "+ComplaintCatagory+" Complaint..");
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-                return  param;
-            }
-        };
-
-
-        queue.add(stringRequest);
-
-
-
-
-
-    }
 
 
     public  void init()

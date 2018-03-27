@@ -65,67 +65,14 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-               // sendPushNotification("w75ri3TFWuXD6TiYnkyZSOzRD4i2","catagory1","dfhdggfhdgf");
 
                 checkPermissions();
+
             }
         });
         return view;
     }
 
-
-    public void sendPushNotification(final String receiverUID , final String ComplaintCatagory, final String Address) {
-
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        FirebaseDatabase.getInstance().getReference().child("region_admin").child(receiverUID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                token = dataSnapshot.child("token").getValue().toString();
-
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        StringRequest stringRequest = new StringRequest(StringRequest.Method.POST, "http://happystore.16mb.com/sihapi/SendNotificationByOneSignal.php"
-                , new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Toast.makeText(getContext(), "Notification send" + response.toString(), Toast.LENGTH_SHORT).show();
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
-
-            }
-        }){
-
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                HashMap<String,String> param = new HashMap<>();
-                param.put("receivertoken",token);
-                param.put("description","at " +Address);
-                param.put("title","New "+ComplaintCatagory+" Complaint..");
-
-                return  param;
-            }
-        };
-
-
-        queue.add(stringRequest);
-
-
-
-
-
-    }
 
 
 
