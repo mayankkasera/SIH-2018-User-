@@ -61,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                sendVerificationCode(mobileNo.getEditText().getText().toString());
+                sendVerificationCode("+91"+mobileNo.getEditText().getText().toString());
 
                 // Doing Mobile Number Validation
 //                if(validateMobileNo(mobileNo.getEditText().getText().toString()))
@@ -105,6 +105,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onCodeSent(String verificationId,
                                    PhoneAuthProvider.ForceResendingToken token) {
                 Log.d(TAG, "onCodeSent:" + verificationId);
+                spotsDialog.show();
 
                 Intent i = new Intent(LoginActivity.this,OtpVerificationActivity.class);
                 i.putExtra("verificationId",verificationId);

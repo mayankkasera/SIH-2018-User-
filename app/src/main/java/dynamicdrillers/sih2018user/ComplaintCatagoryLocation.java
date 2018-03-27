@@ -18,6 +18,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -74,7 +81,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
     StorageReference mStorage;
     String state,district;
     int Got_Authority_Flag =0;
-    String Region;
+    String Region,USerToken;
 
 
     @Override
@@ -186,14 +193,14 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
         final String Complaintid = mRoot.child("complaints").push().getKey().toString();
 
-        //mRoot.child("complaints").child(Complaintid).child("complaint_request_time").setValue(1545455);
-
         mRoot.child("complaints").child(Complaintid).setValue(complaint).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
 
                 if(task.isSuccessful())
                 {
+                    mRoot.child("complaints").child(Complaintid).child("complaint_request_time").setValue(ServerValue.TIMESTAMP);
+
 
                     DatabaseReference reference  = FirebaseDatabase.getInstance().getReference().child("region_admin").child(localAuthorityid);
                     reference.addValueEventListener(new ValueEventListener() {
@@ -250,6 +257,11 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
                                 });
                     }
                     spotsDialog.dismiss();
+
+
+
+                     //sendPushNotification(localAuthorityid,ComplaintCatagoryS,Myplace.getAddress().toString());
+
                     Intent i = new Intent(ComplaintCatagoryLocation.this,ComplaintSuccessFullyActivity.class);
                     i.putExtra("complaintid",Complaintid);
                     startActivity(i);
@@ -264,6 +276,67 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
 
 
+
+
+
+
+
+    }
+
+    public void sendPushNotification(final String receiverUID , final String ComplaintCatagory, final String Address) {
+
+
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+
+
+        StringRequest stringRequest = new StringRequest(StringRequest.Method.POST, "http://happystore.16mb.com/sihapi/SendNotificationByOneSignal.php"
+                , new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Toast.makeText(ComplaintCatagoryLocation.this, "Notification send" + response.toString(), Toast.LENGTH_SHORT).show();
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(ComplaintCatagoryLocation.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+
+            }
+        }){
+
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+
+
+                final HashMap<String,String> param = new HashMap<>();
+                FirebaseDatabase.getInstance().getReference().child("region_admin").child(receiverUID).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        USerToken = dataSnapshot.child("token").getValue().toString();
+
+                        param.put("receivertoken",USerToken);
+
+
+                        param.put("description","at " +Address);
+                        param.put("title","New "+ComplaintCatagory+" Complaint..");
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+                return  param;
+            }
+        };
+
+
+        queue.add(stringRequest);
 
 
 

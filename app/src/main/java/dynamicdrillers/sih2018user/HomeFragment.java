@@ -17,21 +17,34 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.gun0912.tedpicker.Config;
 import com.gun0912.tedpicker.ImagePickerActivity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
 
 
 public class HomeFragment extends Fragment {
 
+    String token;
     Button Registor_Button;
     int PLACE_PICKER_REQUEST = 1;
 
@@ -52,10 +65,66 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
+               // sendPushNotification("w75ri3TFWuXD6TiYnkyZSOzRD4i2","catagory1","dfhdggfhdgf");
+
                 checkPermissions();
             }
         });
         return view;
+    }
+
+
+    public void sendPushNotification(final String receiverUID , final String ComplaintCatagory, final String Address) {
+
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        FirebaseDatabase.getInstance().getReference().child("region_admin").child(receiverUID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                token = dataSnapshot.child("token").getValue().toString();
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        StringRequest stringRequest = new StringRequest(StringRequest.Method.POST, "http://happystore.16mb.com/sihapi/SendNotificationByOneSignal.php"
+                , new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Toast.makeText(getContext(), "Notification send" + response.toString(), Toast.LENGTH_SHORT).show();
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+
+            }
+        }){
+
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String,String> param = new HashMap<>();
+                param.put("receivertoken",token);
+                param.put("description","at " +Address);
+                param.put("title","New "+ComplaintCatagory+" Complaint..");
+
+                return  param;
+            }
+        };
+
+
+        queue.add(stringRequest);
+
+
+
+
+
     }
 
 

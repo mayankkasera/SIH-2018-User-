@@ -105,7 +105,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                PhoneAuthProvider.getInstance().verifyPhoneNumber(mobileNo
+                PhoneAuthProvider.getInstance().verifyPhoneNumber("+91"+mobileNo
                         ,60
                         , TimeUnit.SECONDS
                         ,OtpVerificationActivity.this
