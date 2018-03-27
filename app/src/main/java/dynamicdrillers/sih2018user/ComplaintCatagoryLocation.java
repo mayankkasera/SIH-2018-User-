@@ -29,10 +29,12 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -68,6 +70,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
     FirebaseAuth mAuth;
     StorageReference mStorage;
     String state,district;
+    String region;
 
 
     @Override
@@ -143,13 +146,26 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
     private void sendComplaintToDatabase() {
 
+        DatabaseReference reference =  FirebaseDatabase.getInstance().getReference().child("region_admin").child(localAuthorityid);
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                   region = dataSnapshot.child("region").getValue().toString();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         HashMap<String,String> complaint = new HashMap<>();
         complaint.put("complainer_id",mAuth.getCurrentUser().getUid().toString());
         complaint.put("complaint_request_time", String.valueOf(ServerValue.TIMESTAMP));
         complaint.put("complaint_type",ComplaintCatagoryS);
         complaint.put("complaint_description",ComplaintDescription.getText().toString());
-        complaint.put("complainer_region",district);
-        complaint.put("complainer_state",state);
+        complaint.put("complainer_region",region.toLowerCase());
+        complaint.put("complainer_state",state.toLowerCase());
         complaint.put("complaint_goesto",localAuthorityid);
         complaint.put("complaint_forwardto","default");
         complaint.put("complaint_votes","0");
@@ -158,6 +174,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
         complaint.put("complaint_full_address",Myplace.getAddress().toString());
         complaint.put("complaint_status","pending");
         complaint.put("complaint_level","1");
+        complaint.put("complaint_district",district.toLowerCase());
 
         final String Complaintid = mRoot.child("complaints").push().getKey();
 

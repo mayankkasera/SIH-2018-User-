@@ -1,5 +1,6 @@
 package dynamicdrillers.sih2018user;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,6 +24,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
@@ -32,9 +35,9 @@ public class ComplaintActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private String key;
-    private String Name,Dis,Add,Vote,Share;
+    private String Name,Dis,Add,Vote,Share,Status;
     private long time;
-    private TextView NameTxt,TimeTxt,DisTxt,AddTxt,VoteTxt,ShareTxt;
+    private TextView NameTxt,TimeTxt,DisTxt,AddTxt,VoteTxt,ShareTxt,StatusTxt;
     private String UserId="123";
 
 
@@ -55,6 +58,8 @@ public class ComplaintActivity extends AppCompatActivity {
         time = getIntent().getLongExtra("time",0);
         Dis = getIntent().getStringExtra("description");
         Add = getIntent().getStringExtra("add");
+        Status = getIntent().getStringExtra("status");
+
 
         Toast.makeText(this, ""+key, Toast.LENGTH_SHORT).show();
 
@@ -64,11 +69,15 @@ public class ComplaintActivity extends AppCompatActivity {
         AddTxt = findViewById(R.id.add_com_txt);
         VoteTxt = findViewById(R.id.vote_com_txt);
         ShareTxt = findViewById(R.id.share_com_txt);
+        StatusTxt = findViewById(R.id.status_com_txt);
+
 
         NameTxt.setText(Name);
         TimeTxt.setText(Time.getTimeAgo(time,this));
         DisTxt.setText(Dis);
         AddTxt.setText(Add);
+        StatusTxt.setText(Status);
+
 
 
         DatabaseReference referenceVote = FirebaseDatabase.getInstance().getReference()
@@ -85,6 +94,14 @@ public class ComplaintActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        StatusTxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                regectComplaint();
 
             }
         });
@@ -172,6 +189,43 @@ public class ComplaintActivity extends AppCompatActivity {
 
             }
         });
+
+    }
+
+    private void regectComplaint() {
+        final Dialog dialog = new Dialog(ComplaintActivity.this);
+        dialog.setContentView(R.layout.reject_complaint_dialog_layout);
+        dialog.setTitle("Reject Complaint ");
+
+        final EditText editText = (EditText)dialog.findViewById(R.id.reject_edt);
+        Button button = (Button)dialog.findViewById(R.id.reject_btn);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+//
+//                FirebaseDatabase.getInstance().getReference().child("complaints").child(key)
+//                        .child("complaint_status").setValue("Reject");
+//                FirebaseDatabase.getInstance().getReference().child("complaints").child(key)
+//                        .child("Reject Reason").setValue(editText.getText().toString());
+//                FirebaseDatabase.getInstance().getReference().child("complaints").child(key)
+//                        .child("complaint_reject_time").setValue(ServerValue.TIMESTAMP);
+//                FirebaseDatabase.getInstance().getReference().child("complaints").child(key)
+//                        .child("complaint_reject_time").setValue(ServerValue.TIMESTAMP);
+//                FirebaseDatabase.getInstance().getReference().child("complaints").child(key)
+//                        .child("complaint_reject_by").setValue("user");
+//
+
+                //startActivity(new Intent(ComplaintActivity.this,DashboardActivity.class));
+                Toast.makeText(ComplaintActivity.this, "yes", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show() ;
+
 
     }
 
