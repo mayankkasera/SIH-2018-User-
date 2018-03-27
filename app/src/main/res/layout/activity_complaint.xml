@@ -8,6 +8,10 @@
 
     tools:context="dynamicdrillers.sih2018user.ComplaintActivity">
 
+    <include
+        android:id="@+id/forward_toolbar"
+        layout="@layout/delete_complaint_toolbar"
+        android:visibility="visible" />
 
 
     <android.support.v7.widget.RecyclerView
