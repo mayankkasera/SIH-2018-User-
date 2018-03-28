@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content">
+
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+
+                android:id="@+id/nt_image"
+                android:layout_height="100dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="10dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ntimg"
+                android:padding="10dp"
+                />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:orientation="vertical">
+
+
+
+                <TextView
+                    android:id="@+id/nt_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1.5"
+                    android:textStyle="bold"
+                    android:gravity="left |center"
+                    android:text="State Name"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp" />
+
+
+
+
+
+                <TextView
+                    android:id="@+id/nt_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="2.5"
+                    android:inputType="textMultiLine"
+                    android:lines="2"
+                    android:gravity="left |center"
+                    android:text="State Name"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/nt_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginLeft="5dp"
+                    android:textColor="@android:color/black"
+                    android:gravity="left |center"
+                    android:layout_gravity="center"
+                    android:layout_weight="2.5"
+                    android:text="State Name"
+                    android:inputType="textMultiLine"
+                    android:lines="3"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="0.5"
+                android:layout_gravity="top"
+                android:id="@+id/nt_cancel"
+                android:layout_height="30dp"
+                android:padding="3dp"
+                android:src="@drawable/ic_cross"/>
+
+
+
+
+
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+</RelativeLayout>

@@ -16,6 +16,7 @@
             android:layout_marginRight="20dp"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
+            android:visibility="gone"
             app:srcCompat="@drawable/ic_action_name" />
     </LinearLayout>
 
