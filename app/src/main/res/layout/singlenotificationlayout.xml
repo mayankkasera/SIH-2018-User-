@@ -16,7 +16,7 @@
             <de.hdodenhof.circleimageview.CircleImageView
 
                 android:id="@+id/nt_image"
-                android:layout_height="100dp"
+                android:layout_height="110dp"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_marginLeft="10dp"
@@ -58,7 +58,7 @@
                     android:layout_gravity="center"
                     android:layout_weight="2.5"
                     android:inputType="textMultiLine"
-                    android:lines="2"
+                    android:lines="4"
                     android:gravity="left |center"
                     android:text="State Name"
                     android:textColor="@android:color/black"
@@ -75,7 +75,7 @@
                     android:layout_weight="2.5"
                     android:text="State Name"
                     android:inputType="textMultiLine"
-                    android:lines="3"
+                    android:lines="4"
                     android:textSize="13sp" />
 
             </LinearLayout>

@@ -42,7 +42,7 @@ public class NotificationsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_notifications, container, false);
 
         recyclerView = view.findViewById(R.id.nt_recyclerview);
-        imageView = view.findViewById(R.id.nt_blank);
+
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
@@ -67,8 +67,6 @@ public class NotificationsFragment extends Fragment {
             @Override
             protected void onBindViewHolder(@NonNull NotificationViewhOLDER holder, final int position, @NonNull NotificationModal model) {
 
-                imageView.setVisibility(View.VISIBLE);
-                getActivity().findViewById(R.id.nt_blank).setVisibility(View.VISIBLE);
                 if(position>=0) {
 
 
@@ -144,11 +142,7 @@ public class NotificationsFragment extends Fragment {
 
         }
 
-        public  void setNoNoti()
-        {
-            ImageView imageView = view.findViewById(R.id.nt_blank);
-            imageView.setVisibility(View.VISIBLE);
-        }
+
 
 
 
