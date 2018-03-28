@@ -492,6 +492,10 @@ public class ComplaintActivity extends AppCompatActivity {
                                         startActivity(intent1);
                                         finish();
                                         FirebaseDatabase.getInstance().getReference().child("complaints").child(key)
+                                                .child("complaint_resolved_by").setValue("user");
+
+
+                                        FirebaseDatabase.getInstance().getReference().child("complaints").child(key)
                                                 .child("complaint_resolved_time").setValue(ServerValue.TIMESTAMP);
 
                                         FirebaseDatabase.getInstance().getReference()
