@@ -38,6 +38,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -47,6 +49,11 @@ public class HomeFragment extends Fragment {
     String token;
     Button Registor_Button;
     int PLACE_PICKER_REQUEST = 1;
+    int i;
+
+
+
+
 
     public HomeFragment() {
         // Required empty public constructor
@@ -65,6 +72,15 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
+                Timer timer = new Timer();
+                TimerTask hourlyTask = new TimerTask() {
+                    @Override
+                    public void run () {
+                        Toast.makeText(getContext(), "No is " +i, Toast.LENGTH_SHORT).show();
+                    }
+                };
+
+                timer.schedule (hourlyTask, 0l, 10*60*60);
 
                 checkPermissions();
 

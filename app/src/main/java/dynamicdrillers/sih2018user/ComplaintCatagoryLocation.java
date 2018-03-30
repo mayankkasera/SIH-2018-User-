@@ -37,10 +37,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -50,6 +52,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dmax.dialog.SpotsDialog;
@@ -57,7 +60,7 @@ import dmax.dialog.SpotsDialog;
 public class ComplaintCatagoryLocation extends AppCompatActivity {
 
     private static final String TAG = "ComplaintCatagoryLocati";
-    Spinner ComplaintCatagory;
+    Spinner ComplaintCatagory,AuthorityCatagory;
     Button ChooseLocation;
     EditText ComplaintDescription;
     TextView ChoosedCatagoryString,gotLocationChoosed;
@@ -81,7 +84,11 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
     StorageReference mStorage;
     String state,district;
     int Got_Authority_Flag =0;
-    String Region,USerToken;
+    String Region,USerToken,Test="1";
+    ArrayList ids;
+
+
+
 
 
     @Override
@@ -175,12 +182,21 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
         complaint.put("complainer_state",state);
         complaint.put("complaint_goesto",localAuthorityid);
-        complaint.put("complaint_forwardto","default");
+        Toast.makeText(this, Test, Toast.LENGTH_SHORT).show();
+        if(Test.equals("Default")){
+            complaint.put("complaint_forwardto","default");
+            complaint.put("complaint_status","pending");
+        }
+        else{
+            complaint.put("complaint_forwardto",Test);
+            complaint.put("complaint_status","In progress");
+        }
+
         complaint.put("complaint_votes","0");
         complaint.put("complaint_share","0");
         complaint.put("complaint_resolved_time","null");
         complaint.put("complaint_full_address",Myplace.getAddress().toString());
-        complaint.put("complaint_status","pending");
+
         complaint.put("complaint_level","1");
         complaint.put("complaint_request_No_of_images", String.valueOf(imagesUri.size()));
         complaint.put("complaint_response_No_of_images","0");
@@ -199,8 +215,19 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
                 if(task.isSuccessful())
                 {
-                    mRoot.child("complaints").child(Complaintid).child("complaint_request_time").setValue(ServerValue.TIMESTAMP);
+                    mRoot.child("time").child("t").setValue(ServerValue.TIMESTAMP);
+                    mRoot.child("time").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Long time =  Long.parseLong(dataSnapshot.child("t").getValue().toString());
+                            mRoot.child("complaints").child(Complaintid).child("complaint_request_time").setValue(time.toString());
+                        }
 
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
 
                     DatabaseReference reference  = FirebaseDatabase.getInstance().getReference().child("region_admin").child(localAuthorityid);
                     reference.addValueEventListener(new ValueEventListener() {
@@ -217,19 +244,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
                         }
                     });
 
-                    mRoot.child("time").child("t").setValue(ServerValue.TIMESTAMP);
-                    mRoot.child("time").addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            Long time =  Long.parseLong(dataSnapshot.child("t").getValue().toString());
-                            mRoot.child("complaints").child(Complaintid).child("complaint_request_time").setValue(time.toString());
-                        }
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
 
                      for (int i = 0;i<imagesUri.size();i++ )
                     {
@@ -317,7 +332,15 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
             protected Map<String, String> getParams() throws AuthFailureError {
                 HashMap<String,String> param = new HashMap<>();
                 param.put("mobileno",mAuth.getCurrentUser().getPhoneNumber());
-                param.put("message","Thank you Your Complaint Has Been Registered \n\n Your Complaint id is "+Complaintid+"\n\n Complaint Status : PENDING \n\n ADMIN SIH 2018\n(Byte Walker)");
+
+                if(Test.equals("Default")){
+
+                    param.put("message","Thank you Your Complaint Has Been Registered \n\n Your Complaint id is "+Complaintid+"\n\n Complaint Status : PENDING \n\n ADMIN SIH 2018\n(Byte Walker)");
+
+
+                }else
+                param.put("message","Thank you Your Complaint Has Been Registered \n\n Your Complaint id is "+Complaintid+"\n\n Complaint Status :In Progress \n\n ADMIN SIH 2018\n(Byte Walker)");
+
                 return  param;
             }
 
@@ -341,6 +364,7 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mRoot = FirebaseDatabase.getInstance().getReference();
         mStorage = FirebaseStorage.getInstance().getReference();
+        AuthorityCatagory = findViewById(R.id.authorityCatagory);
 
 
     }
@@ -374,6 +398,22 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
                 if(!found){
                     found = true;
                     localAuthorityid = key;
+
+                    DatabaseReference reference  = FirebaseDatabase.getInstance().getReference().child("region_admin").child(localAuthorityid);
+                    reference.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Region  =  dataSnapshot.child("region").getValue().toString();
+                            AuthoritySpn(Region);
+                            Toast.makeText(ComplaintCatagoryLocation.this, "Region" + Region, Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
                     Toast.makeText(getApplicationContext(),"Yes Services are available at your location",Toast.LENGTH_SHORT).show();
                     Got_Authority_Flag = 1;
                     SubmitComplaint.setEnabled(true);
@@ -495,6 +535,68 @@ public class ComplaintCatagoryLocation extends AppCompatActivity {
 
             }
         }
+    }
+
+
+    void AuthoritySpn( String region){
+
+        final Query database = FirebaseDatabase.getInstance().getReference().child("authority_admin").orderByChild("region").equalTo(region.toLowerCase());
+
+        database.addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ids = new ArrayList<String>();
+                String de = new String("Default");
+                ids.add(de);
+                final List<String> areas = new ArrayList<String>();
+
+                for (DataSnapshot areaSnapshot: dataSnapshot.getChildren()) {
+                    String areaName = areaSnapshot.child("authority").getValue(String.class);
+                    String id =  areaSnapshot.getKey().toString();
+                    areas.add(areaName.toUpperCase());
+                    ids.add(id);
+                }
+
+
+                ArrayAdapter<String> areasAdapter = new ArrayAdapter<String>(ComplaintCatagoryLocation.this, android.R.layout.simple_spinner_item, areas);
+                areasAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                AuthorityCatagory.setAdapter(areasAdapter);
+
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+
+        AuthorityCatagory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                 String item = parent.getItemAtPosition(position).toString();
+                 Test = (String) ids.get(position);
+                Toast.makeText(ComplaintCatagoryLocation.this, "Id : "+Test, Toast.LENGTH_SHORT).show();
+
+
+
+                // Showing selected spinner item
+                Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
+
+
+
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
     }
 
 

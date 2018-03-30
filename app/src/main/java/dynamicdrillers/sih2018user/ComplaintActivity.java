@@ -457,6 +457,8 @@ public class ComplaintActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resuleCode, final Intent intent) {
+
+
         super.onActivityResult(requestCode, resuleCode, intent);
 
         if (requestCode == INTENT_REQUEST_GET_IMAGES && resuleCode == Activity.RESULT_OK ) {
