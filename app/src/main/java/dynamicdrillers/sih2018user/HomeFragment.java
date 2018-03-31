@@ -72,17 +72,8 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                Timer timer = new Timer();
-                TimerTask hourlyTask = new TimerTask() {
-                    @Override
-                    public void run () {
-                        Toast.makeText(getContext(), "No is " +i, Toast.LENGTH_SHORT).show();
-                    }
-                };
-
-                timer.schedule (hourlyTask, 0l, 10*60*60);
-
                 checkPermissions();
+
 
             }
         });
